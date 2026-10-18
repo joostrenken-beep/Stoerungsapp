@@ -1,0 +1,192 @@
+<title>Kanalbetrieb Osterholz-Scharmbeck</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/*__LEAFLET_CSS__*/
+/* Layout: Betriebsleitstand – feste Kopfleiste mit Reitern, Inhalt in Tafeln, Details als Seitenblatt (am Handy ganzseitig). */
+:root {
+  --bg: #eef1f2; --flaeche: #ffffff; --flaeche2: #f6f8f8; --text: #182327; --leise: #5f6f74; --linie: #d5dcde;
+  --akzent: #0c5d6b; --akzent-text: #ffffff; --akzent-hell: #dcecee; --kopf: #10262c; --kopf-text: #e6f0f1;
+  --gefahr: #b42318; --warn: #a24c06; --ok: #18794e;
+  --sw: #8a5a2b; --rw: #1f6fc9; --mw: #7a3fb8; --karte-bg: #e4e9e6;
+  --zk0: #7a1616; --zk1: #d42a20; --zk2: #ee7a1a; --zk3: #d9a400; --zk4: #7fb337; --zk5: #2f9a5a;
+  --schrift: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; --titel: "IBM Plex Sans Condensed", "Arial Narrow", "IBM Plex Sans", sans-serif; --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1719; --flaeche: #172225; --flaeche2: #1c292d; --text: #e3eced; --leise: #93a5aa; --linie: #2b3b40;
+  --akzent: #4fb6c4; --akzent-text: #062126; --akzent-hell: #183a40; --kopf: #0a1214; --kopf-text: #d5e5e7;
+  --gefahr: #f2685c; --warn: #f0a24a; --ok: #4cc38a; --sw: #c98f55; --rw: #5ea5ef; --mw: #b58ae6; --karte-bg: #142024;
+  --zk0: #c43a3a; --zk1: #f0524a; --zk2: #f39645; --zk3: #e6c03a; --zk4: #9ccc5a; --zk5: #4cc38a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1719; --flaeche: #172225; --flaeche2: #1c292d; --text: #e3eced; --leise: #93a5aa; --linie: #2b3b40;
+  --akzent: #4fb6c4; --akzent-text: #062126; --akzent-hell: #183a40; --kopf: #0a1214; --kopf-text: #d5e5e7;
+  --gefahr: #f2685c; --warn: #f0a24a; --ok: #4cc38a; --sw: #c98f55; --rw: #5ea5ef; --mw: #b58ae6; --karte-bg: #142024;
+  --zk0: #c43a3a; --zk1: #f0524a; --zk2: #f39645; --zk3: #e6c03a; --zk4: #9ccc5a; --zk5: #4cc38a; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.5 var(--schrift); margin: 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 1200; background: var(--kopf); }
+body.modal-offen, body.detail-offen { overflow: hidden; }
+a { color: var(--akzent); text-decoration: none; } a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--titel); text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: 1.7rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1.02rem; }
+.leise { color: var(--leise); } .klein { font-size: .85rem; } .zahl { text-align: right; font-variant-numeric: tabular-nums; }
+.kode { font-family: var(--mono); font-weight: 600; letter-spacing: .02em; }
+
+.kopf { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 1100; background: var(--kopf); color: var(--kopf-text); }
+.kopf-innen { max-width: 1440px; margin: 0 auto; padding: .55rem max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.kopf-zeile { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; justify-content: space-between; }
+.marke { display: flex; align-items: center; gap: .55rem; font-family: var(--titel); font-weight: 700; font-size: 1.1rem; letter-spacing: .01em; color: var(--kopf-text); }
+.marke small { font-family: var(--schrift); font-weight: 400; font-size: .8rem; opacity: .75; }
+.dbstatus { font-size: .78rem; padding: .15rem .55rem; border-radius: 99px; border: 1px solid rgba(255,255,255,.25); white-space: nowrap; }
+.dbstatus.ok::before { content: "●"; color: #5fd39b; margin-right: .35rem; } .dbstatus.warn::before { content: "●"; color: #f0a24a; margin-right: .35rem; }
+#nav { display: flex; gap: .15rem; overflow-x: auto; scrollbar-width: none; margin-top: .4rem; }
+#nav::-webkit-scrollbar { display: none; }
+#nav a { color: var(--kopf-text); opacity: .8; padding: .55rem .8rem; white-space: nowrap; border-bottom: 3px solid transparent; font-weight: 500; }
+#nav a:hover { opacity: 1; text-decoration: none; } #nav a.aktiv { opacity: 1; border-bottom-color: var(--akzent); }
+:root:not([data-theme="dark"]) #nav a.aktiv { border-bottom-color: #64c3cf; }
+.zaehler { background: var(--gefahr); color: #fff; border-radius: 99px; font-size: .72rem; padding: 0 .45rem; margin-left: .35rem; font-variant-numeric: tabular-nums; }
+
+main#app { max-width: 1440px; margin: 0 auto; padding-block: 1.25rem 3rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.laden { padding: 3rem 0; text-align: center; color: var(--leise); }
+.seitenkopf { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.seitenkopf > div:first-child { min-width: 0; max-width: 70ch; } .seitenkopf p { margin: .3rem 0 0; }
+.aktionen { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.knopf { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; min-height: 2.5rem; padding: .45rem .9rem; border-radius: 6px; border: 1px solid var(--akzent); background: var(--akzent); color: var(--akzent-text); font: 600 .92rem var(--schrift); cursor: pointer; white-space: nowrap; }
+.knopf:hover { filter: brightness(1.08); text-decoration: none; } .knopf:disabled { opacity: .6; cursor: wait; }
+.knopf.zweit { background: transparent; color: var(--akzent); } .knopf.klein { min-height: 2rem; padding: .25rem .65rem; font-size: .84rem; }
+.knopf.gefahr { background: var(--gefahr); border-color: var(--gefahr); color: #fff; }
+.hinweis { background: var(--akzent-hell); border-left: 4px solid var(--akzent); padding: .65rem .9rem; border-radius: 4px; margin-bottom: 1rem; }
+
+.kennzahlen { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin-bottom: 1.25rem; }
+.kennzahl { background: var(--flaeche); border: 1px solid var(--linie); border-radius: var(--radius); padding: .7rem .9rem; display: flex; flex-direction: column; }
+.kennzahl b { font: 700 1.6rem var(--titel); font-variant-numeric: tabular-nums; } .kennzahl span { color: var(--leise); font-size: .84rem; }
+.kennzahl.warn b { color: var(--gefahr); }
+.raster { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); align-items: start; }
+.raster.zwei { grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); }
+.tafel { background: var(--flaeche); border: 1px solid var(--linie); border-radius: var(--radius); padding: 1rem; min-width: 0; }
+.tafel > h2 { margin-bottom: .5rem; }
+.tafel-kopf { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: .5rem; flex-wrap: wrap; }
+.liste { list-style: none; margin: 0; padding: 0; }
+.liste li { border-top: 1px solid var(--linie); } .liste li:first-child { border-top: 0; }
+.liste a, .liste .eintrag { display: flex; flex-direction: column; gap: .15rem; padding: .55rem .25rem; color: var(--text); }
+.liste a:hover { background: var(--flaeche2); text-decoration: none; }
+.zeile2 { color: var(--leise); font-size: .85rem; } .eintrag .aktionen { margin-top: .35rem; }
+.balken { display: grid; grid-template-columns: minmax(9rem, auto) 1fr 3rem; gap: .4rem .6rem; align-items: center; font-size: .88rem; margin: .5rem 0; }
+.spur { background: var(--flaeche2); border-radius: 3px; height: 12px; overflow: hidden; } .spur div { height: 100%; }
+
+.filter { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1rem; }
+input, select, textarea { font: inherit; color: var(--text); background: var(--flaeche); border: 1px solid var(--linie); border-radius: 6px; padding: .45rem .6rem; min-height: 2.5rem; max-width: 100%; }
+.filter input, .filter select { min-width: 10rem; flex: 0 1 auto; }
+textarea { width: 100%; resize: vertical; }
+.tabelle { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th { text-align: left; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--leise); font-weight: 600; padding: .45rem .5rem; border-bottom: 1px solid var(--linie); white-space: nowrap; }
+td { padding: .45rem .5rem; border-bottom: 1px solid var(--linie); vertical-align: top; }
+tbody tr[data-detail] { cursor: pointer; } tbody tr[data-detail]:hover td { background: var(--flaeche2); }
+.mehr { display: flex; gap: .75rem; align-items: center; margin-top: .75rem; flex-wrap: wrap; }
+
+.chip { display: inline-block; min-width: 1.5rem; text-align: center; padding: .05rem .5rem; border-radius: 99px; font-size: .76rem; font-weight: 600; background: var(--flaeche2); color: var(--leise); border: 1px solid var(--linie); white-space: nowrap; vertical-align: middle; }
+.chip.zk { color: #fff; border-color: transparent; } .zk0 { background: var(--zk0); } .zk1 { background: var(--zk1); } .zk2 { background: var(--zk2); } .zk3 { background: var(--zk3); color: #1b1b1b !important; } .zk4 { background: var(--zk4); color: #1b1b1b !important; } .zk5 { background: var(--zk5); }
+.art-SW { color: var(--sw); border-color: var(--sw); background: transparent; } .art-RW { color: var(--rw); border-color: var(--rw); background: transparent; } .art-MW { color: var(--mw); border-color: var(--mw); background: transparent; }
+.prio-kritisch { background: var(--zk0); color: #fff; border-color: transparent; } .prio-hoch { color: var(--gefahr); border-color: var(--gefahr); background: transparent; }
+.prio-mittel { color: var(--warn); border-color: var(--warn); background: transparent; }
+.st-offen { color: var(--gefahr); border-color: var(--gefahr); background: transparent; } .st-in-Bearbeitung, .st-Sanierung-geplant { color: var(--warn); border-color: var(--warn); background: transparent; }
+.st-behoben, .st-saniert { color: var(--ok); border-color: var(--ok); background: transparent; }
+.ueber { color: var(--gefahr); font-weight: 600; } .bald { color: var(--warn); font-weight: 600; }
+
+.karten { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+.anlage-karte { background: var(--flaeche); border: 1px solid var(--linie); border-radius: var(--radius); padding: .85rem; display: flex; flex-direction: column; gap: .2rem; color: var(--text); }
+.anlage-karte:hover { border-color: var(--akzent); text-decoration: none; }
+.anlage-karte .typ { font-size: .76rem; text-transform: uppercase; letter-spacing: .06em; color: var(--leise); } .anlage-karte strong { font-family: var(--titel); font-size: 1.05rem; }
+.anlage-karte .fuss { margin-top: .35rem; font-size: .84rem; }
+
+/* Karte */
+#kartenansicht { position: relative; height: calc(100vh - 96px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); min-height: 380px; }
+#karte { position: absolute; inset: 0; background: var(--karte-bg); }
+#kartenleiste { position: absolute; z-index: 800; top: .6rem; left: max(56px, calc(env(safe-area-inset-left, 0px) + 56px)); right: max(10px, env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; gap: .4rem; pointer-events: none; }
+#kartenleiste > * { pointer-events: auto; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+#kartenleiste .ebenen { display: flex; flex-wrap: wrap; gap: .1rem .7rem; background: var(--flaeche); border: 1px solid var(--linie); border-radius: 6px; padding: .35rem .6rem; font-size: .85rem; }
+#kartenleiste label { display: inline-flex; gap: .3rem; align-items: center; cursor: pointer; }
+#kartenleiste input[type=checkbox] { min-height: 0; accent-color: var(--akzent); }
+#legende { position: absolute; z-index: 800; bottom: max(1.6rem, env(safe-area-inset-bottom, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); background: var(--flaeche); border: 1px solid var(--linie); border-radius: 6px; padding: .4rem .6rem; font-size: .8rem; display: flex; flex-direction: column; gap: .1rem; }
+#legende i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: .4rem; vertical-align: middle; }
+#legende i.gestrichelt { background: repeating-linear-gradient(90deg, var(--sw) 0 5px, transparent 5px 9px); }
+#legende .ring { display: inline-block; width: 12px; height: 12px; border: 2.5px solid var(--gefahr); border-radius: 50%; margin-right: .4rem; vertical-align: middle; }
+.anlagen-symbol { width: 28px; height: 28px; border-radius: 50%; background: var(--akzent); color: var(--akzent-text); font: 700 11px var(--schrift); display: flex; align-items: center; justify-content: center; border: 2px solid var(--flaeche); box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+.anlagen-symbol.rw { background: var(--rw); color: #fff; } .anlagen-symbol.stoer { background: var(--gefahr); color: #fff; }
+.anlagen-symbol.mini { display: inline-flex; width: 16px; height: 16px; font-size: 9px; margin-right: .4rem; vertical-align: middle; border-width: 1px; }
+.ortsname { font: 600 12px var(--titel); color: var(--leise); text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; text-shadow: 0 0 3px var(--karte-bg), 0 0 3px var(--karte-bg); transform: translate(-50%, -50%); }
+.leaflet-container { font-family: var(--schrift); background: var(--karte-bg); }
+.leaflet-bar a, .leaflet-control-zoom a { background: var(--flaeche); color: var(--text); border-color: var(--linie); }
+.leaflet-tooltip { background: var(--flaeche); color: var(--text); border-color: var(--linie); }
+.leaflet-control-attribution, .leaflet-control-scale-line { background: color-mix(in srgb, var(--flaeche) 80%, transparent) !important; color: var(--leise); }
+.leaflet-control-attribution a { color: var(--akzent); }
+
+/* Detailblatt */
+#detail { position: fixed; z-index: 1150; top: 0; right: 0; bottom: 0; width: min(560px, 100%); background: var(--flaeche); border-left: 1px solid var(--linie); box-shadow: -8px 0 30px rgba(0,0,0,.18); overflow-y: auto; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.detail-leiste { position: sticky; top: 0; display: flex; justify-content: flex-end; padding: .5rem .75rem; background: var(--flaeche); border-bottom: 1px solid var(--linie); z-index: 2; }
+#detail-inhalt { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+.detail-kopf { display: flex; flex-direction: column; gap: .4rem; } .detail-kopf p { margin: 0; }
+.eyebrow { font-size: .76rem; text-transform: uppercase; letter-spacing: .07em; color: var(--leise); }
+.abschnitt { border-top: 1px solid var(--linie); padding-top: .85rem; min-width: 0; } .abschnitt h3 { margin-bottom: .5rem; }
+dl.daten { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; margin: 0; font-size: .92rem; } dl.daten dt { color: var(--leise); } dl.daten dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.band { width: 100%; height: auto; display: block; margin: .25rem 0 .75rem; }
+.band text { font: 11px var(--schrift); fill: var(--text); } .band .rohr { fill: var(--flaeche2); stroke: var(--leise); } .band .schacht { fill: var(--leise); } .band .tick { stroke: var(--leise); }
+.band .rand { stroke: var(--flaeche); stroke-width: 2; } .band .punkt { cursor: pointer; }
+.minikarte, .picker { height: 240px; border-radius: 6px; border: 1px solid var(--linie); }
+.fotos { display: flex; gap: .5rem; flex-wrap: wrap; } .fotos img { width: 120px; height: 90px; object-fit: cover; border-radius: 6px; border: 1px solid var(--linie); }
+
+/* Dialog */
+#dialog { position: fixed; inset: 0; z-index: 1300; background: rgba(8,16,18,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: max(1rem, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 2rem max(16px, env(safe-area-inset-left, 0px)); }
+#dialog[hidden] { display: none; }
+.dlg-karte { background: var(--flaeche); border-radius: 10px; width: min(760px, 100%); padding: 1rem 1.1rem 1.2rem; margin-top: 2vh; }
+.dlg-kopf { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: .75rem; }
+.formular { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: .7rem 1rem; margin-bottom: 1rem; }
+.feld { display: flex; flex-direction: column; gap: .25rem; min-width: 0; } .feld.breit, .formular .breit { grid-column: 1 / -1; }
+.feld label { font-size: .82rem; font-weight: 600; color: var(--leise); } .feld input, .feld select { width: 100%; }
+.dlg-fehler { color: var(--gefahr); background: color-mix(in srgb, var(--gefahr) 10%, transparent); padding: .5rem .75rem; border-radius: 6px; margin-bottom: .75rem; }
+.stapel { display: flex; flex-direction: column; gap: .6rem; }
+details summary { cursor: pointer; color: var(--akzent); }
+
+#toasts { position: fixed; z-index: 1400; left: 50%; transform: translateX(-50%); bottom: max(1rem, env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: .4rem; width: min(480px, calc(100% - 32px)); }
+.toast { background: var(--kopf); color: var(--kopf-text); padding: .6rem .9rem; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.25); border-left: 4px solid var(--ok); }
+.toast.fehler { border-left-color: var(--gefahr); } .toast.info { border-left-color: var(--akzent); }
+.fusszeile { max-width: 1440px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 2rem max(16px, env(safe-area-inset-left, 0px)); font-size: .8rem; color: var(--leise); }
+
+@media (max-width: 720px) {
+  h1 { font-size: 1.4rem; } .mobil-aus { display: none; }
+  .filter input, .filter select { min-width: 0; flex: 1 1 45%; }
+  #detail { width: 100%; border-left: 0; }
+  #kartenleiste { left: max(52px, calc(env(safe-area-inset-left, 0px) + 52px)); } #kartenleiste select { flex: 1 1 40%; min-width: 0; }
+  #legende { font-size: .74rem; }
+  .balken { grid-template-columns: minmax(7.5rem, auto) 1fr 2.5rem; }
+  .marke small { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+</style>
+
+<header class="kopf"><div class="kopf-innen">
+  <div class="kopf-zeile"><div class="marke"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5v17"/></svg>Kanalbetrieb <small>Osterholz-Scharmbeck · Demo</small></div><span id="dbstatus" class="dbstatus">Verbinde …</span></div>
+  <nav id="nav" aria-label="Bereiche"></nav>
+</div></header>
+<main id="app"></main>
+<section id="kartenansicht" hidden aria-label="Karte">
+  <div id="karte"></div>
+  <div id="kartenleiste">
+    <select id="kartenort" aria-label="Ortsteil"></select>
+    <select id="farbe" aria-label="Einfärbung"><option value="art">Farbe: Kanalart</option><option value="zk">Farbe: Zustandsklasse</option></select>
+    <div class="ebenen"><label><input type="checkbox" data-ebene="haltungen" checked>Haltungen</label><label><input type="checkbox" data-ebene="knoten">Schächte</label><label><input type="checkbox" data-ebene="anlagen" checked>Anlagen</label><label><input type="checkbox" data-ebene="schaeden">Schäden</label><label><input type="checkbox" data-ebene="stoerungen" checked>Störungen</label><label><input type="checkbox" data-ebene="namen" checked>Ortsteile</label></div>
+  </div>
+  <div id="legende"></div>
+</section>
+<aside id="detail" hidden aria-label="Details"><div class="detail-leiste"><button class="knopf zweit klein" data-akt="detail-zu">Schließen</button></div><div id="detail-inhalt"></div></aside>
+<div id="dialog" hidden></div>
+<div id="toasts" aria-live="polite"></div>
+<p class="fusszeile">Fiktives Beispielnetz: Lage der Ortsteile und Anlagen angenähert, Leitungen, Schäden und Ereignisse erfunden. Schadenskodierung nach DWA-M 149-2; Klassenvorschläge sind vereinfacht und ersetzen keine fachliche Bewertung. Ohne Hintergrundkarte, weil diese Seite keine Kartenkacheln laden darf.</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+/*__APP_JS__*/
+</script>
