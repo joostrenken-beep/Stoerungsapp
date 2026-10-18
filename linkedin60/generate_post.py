@@ -41,6 +41,7 @@ SEND_TIME = dt.time(5, 30)
 EARLIEST_START = dt.time(5, 0)
 HISTORY_FILE = Path(__file__).with_name("history.json")
 MODEL = "claude-opus-5-5"
+TITEL = "60 Sekunden Wasserwirtschaft"
 WOCHENTAGE = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
 
 NEWS_QUERIES = [
@@ -120,7 +121,7 @@ Ton: Du duzt die Leser. Etwas provokant, zugespitzt, mit klarer Haltung, sodass 
 Die erste Zeile muss allein stehen und neugierig machen (unter 120 Zeichen). Sie darf keinem dieser letzten Einstiege ähneln:
 {recent_hooks}
 
-Der Reihentitel "60 Sekunden Wasserwirtschaft" muss nicht am Anfang stehen. Bau ihn natürlich ein oder setz ihn als kurze Zeile ans Ende vor die Hashtags.
+Über jedem Beitrag steht automatisch die Überschrift "{TITEL}". Schreib sie NICHT selbst, beginne direkt mit der ersten Zeile des Beitrags.
 
 Absätze: kurze Absätze mit Leerzeilen dazwischen, wie es auf LinkedIn üblich ist. Reiner Text.
 
@@ -132,7 +133,7 @@ Gib am Ende genau diesen Block aus, ohne weiteren Text danach:
 ===BEITRAG===
 (der fertige Beitrag, exakt so wie er auf LinkedIn stehen soll)
 ===ALTERNATIVE_ERSTE_ZEILEN===
-(zwei alternative erste Zeilen, je eine pro Zeile)
+(zwei alternative erste Zeilen nach der Überschrift, je eine pro Zeile)
 ===THEMA===
 (das Thema in maximal 10 Wörtern)
 ===QUELLEN===
@@ -179,6 +180,10 @@ def section(text, name):
 
 def clean_post(post):
     # Sicherheitsnetz für Dinge, die LinkedIn nicht darstellt oder nach KI aussehen.
+    # Eine vom Modell selbst geschriebene Reihenüberschrift entfernen, sie wird einheitlich davorgesetzt.
+    lines = post.strip().splitlines()
+    if lines and TITEL.lower() in lines[0].lower() and len(lines[0]) < len(TITEL) + 12:
+        post = "\n".join(lines[1:])
     post = re.sub(r"\*\*(.+?)\*\*", r"\1", post)
     post = re.sub(r"\s+[–—]\s+", ", ", post)
     post = re.sub(r"[–—]", "-", post)
@@ -190,8 +195,10 @@ def parse_output(text):
     post = section(text, "BEITRAG")
     if not post:
         raise RuntimeError("Antwort enthielt keinen Beitrag:\n" + text[-2000:])
+    body = clean_post(post)
     return {
-        "beitrag": clean_post(post),
+        "beitrag": f"{TITEL}\n\n{body}",
+        "erste_zeile": body.splitlines()[0],
         "alternativen": [l.strip() for l in section(text, "ALTERNATIVE_ERSTE_ZEILEN").splitlines() if l.strip()],
         "thema": section(text, "THEMA"),
         "quellen": [l.strip() for l in section(text, "QUELLEN").splitlines() if l.strip()],
@@ -199,7 +206,7 @@ def parse_output(text):
 
 
 def build_email(result, meta, today):
-    subject = f"LinkedIn-Entwurf {WOCHENTAGE[today.weekday()][:2]} {today:%d.%m.}: {result['thema'] or '60 Sekunden Wasserwirtschaft'}"
+    subject = f"LinkedIn-Entwurf {WOCHENTAGE[today.weekday()][:2]} {today:%d.%m.}: {result['thema'] or TITEL}"
     extras = []
     if result["alternativen"]:
         extras.append("Alternative erste Zeilen:\n" + "\n".join(f"- {a}" for a in result["alternativen"]))
@@ -275,8 +282,7 @@ def main():
     send_email(msg)
     print(f"E-Mail an {msg['To']} gesendet.")
 
-    first_line = result["beitrag"].splitlines()[0]
-    entry = {"datum": today.isoformat(), **meta, "thema": result["thema"], "erste_zeile": first_line}
+    entry = {"datum": today.isoformat(), **meta, "thema": result["thema"], "erste_zeile": result["erste_zeile"]}
     if force:
         entry["manuell"] = True
     history.append(entry)

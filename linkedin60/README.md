@@ -8,7 +8,8 @@ Jeden **Dienstag, Donnerstag und Freitag um 5:30 Uhr** (deutsche Zeit) kommt ein
 2. **Recherche:** Claude prüft per Websuche die Fakten und schaut, worüber in Branche, Fachpresse und sozialen Netzwerken gerade gestritten wird.
 3. **Abwechslung:** Jedes Mal ein anderes Format (13 Varianten, z. B. *Unbequeme These*, *Die Rechnung*, *Offener Brief*, *Kleine Szene*, *Selbstkritik*), ein anderer Zielgruppen-Fokus (Geschäftsführung Stadtentwässerung, Bürger, Politik) und eine andere Länge. Themen und erste Zeilen der letzten Beiträge werden nicht wiederholt.
 4. **Ton:** geduzt, zugespitzt, mit klarer Haltung. Typische KI-Merkmale sind ausdrücklich verboten (Gedankenstriche, Emoji-Listen, „Was denkst du? 👇“, Hashtag-Wände, Markdown …).
-5. **E-Mail:** oben der Beitrag zum Kopieren, darunter zwei alternative erste Zeilen und die Quellen zum Gegenprüfen.
+5. **Überschrift:** Jeder Beitrag beginnt mit der Zeile „60 Sekunden Wasserwirtschaft“. Sie wird vom Programm gesetzt, nicht von der KI, und fehlt deshalb nie.
+6. **E-Mail:** oben der Beitrag zum Kopieren, darunter zwei alternative erste Zeilen und die Quellen zum Gegenprüfen.
 
 Formate, Zielgruppen und Verbote kannst du in [`stil.py`](stil.py) anpassen.
 
