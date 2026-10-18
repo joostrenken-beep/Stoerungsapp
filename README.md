@@ -37,6 +37,16 @@ Demo-Zugänge (Passwort `kanal2026`, bitte sofort ändern): `admin` (Administrat
 
 Ohne Demodaten legen Sie zuerst einen Administrator an: `flask --app app benutzer-anlegen admin --name "Vorname Name"`.
 
+## Ohne eigenen Rechner testen (Render.com)
+
+Die Datei `render.yaml` richtet einen kostenlosen Testbetrieb auf [Render](https://render.com) ein. Das geht auch komplett vom Handy aus:
+
+1. Bei render.com mit dem GitHub-Konto anmelden.
+2. **New → Blueprint** wählen, dieses Repository auswählen und das Passwort für die Demo-Benutzer (`KANALDB_DEMO_PASSWORT`) eingeben.
+3. Nach einigen Minuten ist die Anwendung unter `https://kanalbetriebsdatenbank-….onrender.com` erreichbar.
+
+Im kostenlosen Tarif schläft die Anwendung nach 15 Minuten ohne Zugriff ein; der erste Aufruf danach dauert rund eine Minute. Eingaben gehen beim Neustart verloren. Für den echten Betrieb braucht es einen dauerhaften Speicher (siehe unten).
+
 ## Beispieldaten Osterholz-Scharmbeck
 
 Der Befehl `flask --app app demo-laden` erzeugt ein **frei erfundenes** Trennsystem für die Kernstadt und acht Ortsteile:

@@ -1,0 +1,18 @@
+# Test-Betrieb auf Render.com (kostenloser Tarif). Achtung: Die Festplatte ist dort
+# nicht dauerhaft – nach jedem Neustart wird das Beispielnetz neu geladen und
+# eigene Eingaben gehen verloren. Nur zum Ausprobieren gedacht.
+services:
+  - type: web
+    name: kanalbetriebsdatenbank
+    runtime: python
+    plan: free
+    branch: claude/kanalbetriebsdatenbank-anlagen-spyt98
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask --app app demo-laden --nur-wenn-leer && waitress-serve --port $PORT app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: KANALDB_DEMO_PASSWORT
+        sync: false
+      - key: KANALDB_SECRET_KEY
+        generateValue: true

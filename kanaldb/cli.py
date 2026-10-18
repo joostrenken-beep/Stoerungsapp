@@ -59,9 +59,13 @@ def registrieren(app):
             click.echo(f"geschrieben: {pfad}")
 
     @app.cli.command("demo-laden")
-    @click.option("--admin-passwort", default="kanal2026", show_default=True)
-    def demo_laden(admin_passwort):
+    @click.option("--admin-passwort", envvar="KANALDB_DEMO_PASSWORT", default="kanal2026", show_default=True)
+    @click.option("--nur-wenn-leer", is_flag=True, help="Nichts tun, wenn bereits Benutzer existieren.")
+    def demo_laden(admin_passwort, nur_wenn_leer):
         """Lädt das fiktive Beispielnetz Osterholz-Scharmbeck (über den regulären Import)."""
         from .demo import laden
+        if nur_wenn_leer and Benutzer.query.count():
+            click.echo("Datenbank enthält bereits Daten – Demo wird nicht geladen.")
+            return
         for zeile in laden(admin_passwort):
             click.echo(zeile)
