@@ -5,6 +5,8 @@ restlichen Code anzufassen. Pro Lauf wird ein Format, ein Zielgruppen-Fokus
 und eine Länge gewählt, die in den letzten Beiträgen nicht vorkamen.
 """
 
+TITEL = "60 Sekunden Wasserwirtschaft"
+
 # Jedes Format ist ein anderer Bauplan. Name = Kurzlabel, Text = Anweisung.
 FORMATE = {
     "Unbequeme These": (
