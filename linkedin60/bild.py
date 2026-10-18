@@ -127,12 +127,12 @@ def erstellen(datum, aussage, hintergrund=None):
     d.text((70, 73), TITEL.upper(), font=f_titel, fill=DUNKEL, anchor="lm")
 
     # Kernaussage unten links, Größe passt sich der Länge an
-    for size in (120, 96, 78, 64, 54, 46):
+    # nie abschneiden: so lange verkleinern, bis der Text in höchstens 4 Zeilen passt
+    for size in (120, 96, 78, 66, 58, 50, 44, 38, 34):
         f_aussage = font(FONT_BOLD, size)
-        lines = wrap(d, aussage, f_aussage, 760)
-        if len(lines) <= 3:
+        lines = wrap(d, aussage, f_aussage, 770)
+        if len(lines) <= (3 if size >= 58 else 4):
             break
-    lines = lines[:3]
     line_h = int(size * 1.15)
     y = H - 60 - line_h * len(lines)
     for line in lines:
