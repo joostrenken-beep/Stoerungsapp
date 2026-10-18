@@ -67,5 +67,8 @@ def registrieren(app):
         if nur_wenn_leer and Benutzer.query.count():
             click.echo("Datenbank enthält bereits Daten – Demo wird nicht geladen.")
             return
-        for zeile in laden(admin_passwort):
+        meldungen = laden(admin_passwort)
+        for zeile in meldungen:
             click.echo(zeile)
+        if any(z.startswith("FEHLER") for z in meldungen):
+            raise SystemExit(1)

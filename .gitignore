@@ -2,6 +2,6 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-daten/
+/daten/
 *.sqlite
 .pytest_cache/

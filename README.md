@@ -37,6 +37,21 @@ Demo-Zugänge (Passwort `kanal2026`, bitte sofort ändern): `admin` (Administrat
 
 Ohne Demodaten legen Sie zuerst einen Administrator an: `flask --app app benutzer-anlegen admin --name "Vorname Name"`.
 
+## Betrieb auf PythonAnywhere (ohne eigenen Rechner)
+
+[PythonAnywhere](https://eu.pythonanywhere.com) lässt sich komplett im Handy-Browser einrichten. Die Daten bleiben dort auch im kostenlosen Konto erhalten (Speicher 512 MB, Rechenzentrum in der EU).
+
+1. Auf **eu.pythonanywhere.com** ein kostenloses Konto („Beginner“) anlegen.
+2. Im Reiter **Web**: *Add a new web app* → *Next* → **Manual configuration** → höchste angebotene Python-Version → *Next*.
+3. Im Reiter **Consoles**: *Bash* öffnen und diese Zeile einfügen:
+   ```
+   git clone -b claude/kanalbetriebsdatenbank-anlagen-spyt98 https://github.com/joostrenken-beep/Stoerungsapp.git ; bash Stoerungsapp/pythonanywhere_einrichten.sh
+   ```
+   Das Skript fragt nach einem Passwort für die Benutzer `admin`, `betrieb` und `gast`.
+4. Im Reiter **Web** auf **Reload** tippen und `https://BENUTZERNAME.eu.pythonanywhere.com` öffnen.
+
+Updates holt dieselbe Zeile; vorhandene Daten bleiben erhalten (danach wieder *Reload*). Im kostenlosen Konto läuft kein automatischer Ordner-Import – Dateien über die Seite *Import* hochladen. Die kostenlose Web-App muss alle drei Monate im Reiter *Web* mit „Run until 3 months from today“ verlängert werden.
+
 ## Ohne eigenen Rechner testen (Render.com)
 
 Die Datei `render.yaml` richtet einen kostenlosen Testbetrieb auf [Render](https://render.com) ein. Das geht auch komplett vom Handy aus:
