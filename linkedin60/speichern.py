@@ -10,6 +10,7 @@ import re
 import sys
 from pathlib import Path
 
+import bild
 from planen import AUSWAHL_FILE, HIER, HISTORY_FILE, load_history
 from stil import TITEL
 
@@ -41,6 +42,7 @@ def main():
     beitrag = f"{TITEL}\n\n{body}"
     alternativen = [l.strip() for l in section(text, "ALTERNATIVE_ERSTE_ZEILEN").splitlines() if l.strip()]
     thema = section(text, "THEMA")
+    bildtext = clean_post(section(text, "BILDTEXT")) or body.splitlines()[0]
     quellen = [l.strip() for l in section(text, "QUELLEN").splitlines() if l.strip()]
 
     auswahl = json.loads(AUSWAHL_FILE.read_text(encoding="utf-8"))
@@ -49,7 +51,7 @@ def main():
     archiv = HIER / "entwuerfe" / f"{datum}.md"
     archiv.parent.mkdir(exist_ok=True)
     archiv.write_text(
-        f"{beitrag}\n\n---\n\nThema: {thema}\n"
+        f"{beitrag}\n\n---\n\nThema: {thema}\nBildtext: {bildtext}\n"
         f"Format: {auswahl['format']} | Zielgruppe: {auswahl['zielgruppe']} | Länge: {auswahl['laenge']}\n\n"
         "Alternative erste Zeilen:\n" + "".join(f"- {a}\n" for a in alternativen) +
         "\nQuellen:\n" + "".join(f"- {q}\n" for q in quellen),
@@ -59,14 +61,16 @@ def main():
     history = [h for h in load_history() if h.get("datum") != datum]
     history.append({**auswahl, "thema": thema, "erste_zeile": body.splitlines()[0]})
     HISTORY_FILE.write_text(json.dumps(history[-60:], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    AUSWAHL_FILE.unlink()
 
     print(beitrag)
     print("\n---")
     print("Alternative erste Zeilen:\n" + "\n".join(f"- {a}" for a in alternativen))
     print("Quellen:\n" + "\n".join(f"- {q}" for q in quellen))
     print(f"Format: {auswahl['format']} | Zielgruppe: {auswahl['zielgruppe']} | Länge: {auswahl['laenge']}")
+    print(f"Bildtext: {bildtext}")
     print(f"Gespeichert: {archiv.relative_to(HIER.parent)}")
+
+    bild.erstellen(datum, bildtext)
 
 
 if __name__ == "__main__":

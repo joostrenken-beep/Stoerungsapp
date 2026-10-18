@@ -37,7 +37,7 @@ def build_brief(today, history, fmt, audience, length):
     recent_hooks = "\n".join(f"- {h.get('erste_zeile', '')}" for h in history[-8:]) or "- (noch keine)"
     return f"""Heute ist {WOCHENTAGE[today.weekday()]}, {today:%d.%m.%Y}.
 
-Du schreibst für Joost Renken einen LinkedIn-Beitrag für die Unternehmensseite "Starkregenberatung" in der Reihe "{TITEL}". Joost ist Starkregenberater. Der Beitrag soll in 60 Sekunden lesbar sein.
+Du schreibst für Joost Renken einen LinkedIn-Beitrag für die Unternehmensseite "Stark! Regenberatung" (Motto: Innovative Ideen für die Wasserwirtschaft) in der Reihe "{TITEL}". Joost ist Starkregenberater. Der Beitrag soll in 60 Sekunden lesbar sein.
 
 SCHRITT 1: RECHERCHE (mit der Websuche, mehrere Suchen)
 a) Finde die eine Nachricht der letzten 7 Tage, die sich am besten für einen pointierten Beitrag eignet: aktuell, Deutschland oder DACH bevorzugt, Bezug zu Starkregen, Entwässerung, Klimaanpassung, Schwammstadt, Abwassergebühren, Elementarschaden, Kommunal- oder Landespolitik. Lies die Fakten dazu nach.
@@ -69,6 +69,8 @@ Schreib das Ergebnis in eine Textdatei mit genau diesem Aufbau und gib sie an sp
 (der fertige Beitrag ohne Überschrift, exakt so wie er auf LinkedIn stehen soll)
 ===ALTERNATIVE_ERSTE_ZEILEN===
 (zwei alternative erste Zeilen, je eine pro Zeile)
+===BILDTEXT===
+(eine zugespitzte Kernaussage für das Beitragsbild, höchstens 70 Zeichen, darf von der ersten Zeile abweichen, gleiche Regeln: keine Gedankenstriche, keine Floskeln)
 ===THEMA===
 (das Thema in maximal 10 Wörtern)
 ===QUELLEN===
