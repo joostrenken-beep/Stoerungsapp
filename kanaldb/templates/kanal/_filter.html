@@ -1,0 +1,9 @@
+<form class="filter">
+  <input name="q" value="{{ f.q }}" placeholder="Bezeichnung oder Straße">
+  <select name="ortsteil"><option value="">Alle Ortsteile</option>{% for o in ortsteile %}<option {{ 'selected' if f.ortsteil == o }}>{{ o }}</option>{% endfor %}</select>
+  <select name="kanalart"><option value="">Alle Kanalarten</option>{% for k, t in KANALARTEN.items() %}<option value="{{ k }}" {{ 'selected' if f.kanalart == k }}>{{ t }}</option>{% endfor %}</select>
+  <select name="zk"><option value="">Alle Zustandsklassen</option>{% for k in range(6) %}<option value="{{ k }}" {{ 'selected' if f.zk == k|string }}>ZK {{ k }} – {{ ZUSTANDSKLASSEN[k][0] }}</option>{% endfor %}<option value="keine" {{ 'selected' if f.zk == 'keine' }}>nicht bewertet</option></select>
+  <button class="knopf">Filtern</button>
+  {% set args = request.args.to_dict() %}{% set _ = args.update(export='csv') %}
+  <a class="knopf zweit" href="{{ url_for(request.endpoint, **args) }}">CSV-Export</a>
+</form>

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Schaden {{ s.kode_voll }}{% endblock %}
+{% block kopf %}{{ m.leaflet_kopf() }}{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf">
+  <div><h1>{{ s.kode_voll }} – {{ kode_text(s.kode, s.char1, s.char2) }} {{ m.zk(s.schadensklasse) }}</h1>
+    <p class="leise">{% if ziel_url(s.ziel_typ, s.ziel_id) %}<a href="{{ ziel_url(s.ziel_typ, s.ziel_id) }}">{{ s.ziel_anzeige }}</a>{% endif %}
+      {% if s.inspektion %} · <a href="{{ url_for('kanal.inspektion', id=s.inspektion.id) }}">Inspektion {{ s.inspektion.datum|de }}</a>{% endif %}</p></div>
+  <div class="aktionen">
+    {% if position %}<a class="knopf zweit" href="{{ url_for('start.karte', lat=position[0], lon=position[1], z=19, schaeden=1) }}">In Karte</a>{% endif %}
+    {% if current_user.darf_bearbeiten %}<a class="knopf zweit" href="{{ url_for('kanal.schaden_bearbeiten', id=s.id) }}">Bearbeiten / Sanierung</a>
+      {{ m.loesch_knopf(url_for('kanal.schaden_loeschen', id=s.id)) }}{% endif %}
+  </div>
+</div>
+<div class="raster-2">
+  <section class="karte-box"><dl class="daten">
+    <dt>Hauptkode</dt><dd><strong>{{ s.kode }}</strong> {{ kode_text(s.kode) }}</dd>
+    <dt>Charakterisierung</dt><dd>{{ s.char1 or '–' }} / {{ s.char2 or '–' }}</dd>
+    <dt>Quantifizierung</dt><dd>{{ s.quant1 or '–' }}{% if s.quant2 %} / {{ s.quant2 }}{% endif %}</dd>
+    <dt>Station</dt><dd>{{ s.station|de(2) }} m{% if s.station_bis is not none %} bis {{ s.station_bis|de(2) }} m (Streckenschaden){% endif %}</dd>
+    <dt>Lage (Uhr)</dt><dd>{{ s.uhr_von or '–' }}{% if s.uhr_bis %} bis {{ s.uhr_bis }}{% endif %}</dd>
+    <dt>an Verbindung</dt><dd>{{ 'ja' if s.verbindung else 'nein' }}</dd>
+    <dt>Klassen D / S / B</dt><dd>{{ m.zk(s.klasse_d) }} {{ m.zk(s.klasse_s) }} {{ m.zk(s.klasse_b) }}</dd>
+    <dt>Schadensklasse</dt><dd>{{ m.zk(s.schadensklasse) }} {% if s.schadensklasse is not none %}{{ ZUSTANDSKLASSEN[s.schadensklasse][0] }} – {{ ZUSTANDSKLASSEN[s.schadensklasse][1] }}{% endif %}</dd>
+    <dt>Status</dt><dd>{{ m.status(s.status) }}{% if s.sanierung_datum %} am {{ s.sanierung_datum|de }}{% endif %} {{ s.sanierung_massnahme or '' }}</dd>
+    <dt>Festgestellt</dt><dd>{{ s.datum|de }} · {{ s.erstellt_von or '' }}</dd>
+    <dt>Foto</dt><dd>{{ s.foto or '–' }}</dd>
+    <dt>Bemerkung</dt><dd>{{ s.bemerkung or '–' }}</dd>
+  </dl>
+  <p class="klein leise">Kodierung nach DWA-M 149-2 / DIN EN 13508-2. D = Dichtheit, S = Standsicherheit, B = Betriebssicherheit; die Schadensklasse ist die schlechteste der drei (DWA-M 149-3).</p></section>
+  {% if position %}<section class="karte-box">{{ m.minikarte('minikarte', [[position[0], position[1], s.kode_voll, ZUSTANDSKLASSEN[s.schadensklasse][2] if s.schadensklasse is not none else none]], s.ziel.koordinaten() if s.ziel_typ == 'haltung' and s.ziel else none) }}</section>{% endif %}
+</div>
+{% endblock %}

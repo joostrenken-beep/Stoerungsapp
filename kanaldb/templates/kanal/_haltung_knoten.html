@@ -1,0 +1,5 @@
+<div class="formular" style="margin-bottom:.75rem">
+  <div class="feld"><label for="vk">Von Schacht (Zulauf, oben)</label><input id="vk" name="von_knoten" list="knotennamen" value="{{ request.form.get('von_knoten') or (obj.von_knoten.bezeichnung if obj.von_knoten else '') }}"></div>
+  <div class="feld"><label for="bk">Bis Schacht (Ablauf, unten)</label><input id="bk" name="bis_knoten" list="knotennamen" value="{{ request.form.get('bis_knoten') or (obj.bis_knoten.bezeichnung if obj.bis_knoten else '') }}"></div>
+  <datalist id="knotennamen">{% for n in knotennamen %}<option value="{{ n }}">{% endfor %}</datalist>
+</div>

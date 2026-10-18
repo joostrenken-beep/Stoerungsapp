@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}{{ k.knotenart }} {{ k.bezeichnung }}{% endblock %}
+{% block kopf %}{{ m.leaflet_kopf() }}{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf">
+  <div><h1>{{ k.knotenart }} {{ k.bezeichnung }} {{ m.art(k.kanalart) }} {{ m.zk(k.zustandsklasse) }}</h1>
+    <p class="leise">{{ k.strasse or '' }} · {{ k.ortsteil or '' }}{% if k.anlage %} · gehört zu <a href="{{ url_for('anlagen.anlage', id=k.anlage.id) }}">{{ k.anlage.anzeige }}</a>{% endif %}</p></div>
+  <div class="aktionen">
+    {% if k.lat %}<a class="knopf zweit" href="{{ url_for('start.karte', lat=k.lat, lon=k.lon, z=19) }}">In Karte</a>
+      <a class="knopf zweit" href="https://www.google.com/maps/dir/?api=1&destination={{ k.lat }},{{ k.lon }}" target="_blank" rel="noopener">Navigation</a>{% endif %}
+    {% if current_user.darf_bearbeiten %}<a class="knopf zweit" href="{{ url_for('kanal.knoten_bearbeiten', id=k.id) }}">Bearbeiten</a>{% endif %}
+    {% if current_user.ist_admin %}{{ m.loesch_knopf(url_for('kanal.loeschen', typ='knoten', id=k.id)) }}{% endif %}
+  </div>
+</div>
+<div class="raster-2">
+  <div class="stapel">{{ m.betrieb_bloecke(ziel_typ, ziel_id, wartungsplaene, massnahmen, stoerungen, dokumente, schaeden_alle) }}</div>
+  <div class="stapel">
+    <section class="karte-box"><h2>Stammdaten</h2>
+      <dl class="daten">
+        <dt>Knotenart</dt><dd>{{ k.knotenart }}</dd>
+        <dt>Kanalart</dt><dd>{{ KANALARTEN.get(k.kanalart, '–') }}</dd>
+        <dt>Deckelhöhe</dt><dd>{{ k.deckelhoehe|de }} m ü. NHN</dd>
+        <dt>Sohlhöhe</dt><dd>{{ k.sohlhoehe|de }} m ü. NHN</dd>
+        <dt>Schachttiefe</dt><dd>{{ k.schachttiefe|de }} m</dd>
+        <dt>Material</dt><dd>{{ k.material or '–' }}</dd>
+        <dt>Baujahr</dt><dd>{{ k.baujahr or '–' }}</dd>
+        <dt>Koordinaten</dt><dd class="klein">{{ k.lat|de(6) }}, {{ k.lon|de(6) }}{% if k.rechtswert %}<br>UTM: {{ k.rechtswert|de(2) }} / {{ k.hochwert|de(2) }}{% endif %}</dd>
+        <dt>Datenquelle</dt><dd class="klein">{{ k.quelle or '–' }}</dd>
+      </dl>
+      {% if k.bemerkung %}<p>{{ k.bemerkung }}</p>{% endif %}
+    </section>
+    <section class="karte-box"><h2>Angeschlossene Haltungen</h2>
+      <table>
+        {% for h in zulauf %}<tr><td>Zulauf</td><td><a href="{{ url_for('kanal.haltung', id=h.id) }}">{{ h.bezeichnung }}</a></td><td>DN {{ h.dn or '–' }}</td><td>{{ m.zk(h.zustandsklasse) }}</td></tr>{% endfor %}
+        {% for h in ablauf %}<tr><td>Ablauf</td><td><a href="{{ url_for('kanal.haltung', id=h.id) }}">{{ h.bezeichnung }}</a></td><td>DN {{ h.dn or '–' }}</td><td>{{ m.zk(h.zustandsklasse) }}</td></tr>{% endfor %}
+      </table>
+    </section>
+    {% if k.lat %}<section class="karte-box">{{ m.minikarte('minikarte', [[k.lat, k.lon, k.bezeichnung]]) }}</section>{% endif %}
+    <section class="karte-box"><h2>Inspektionen</h2>
+      {% if inspektionen %}<table>{% for i in inspektionen %}<tr><td><a href="{{ url_for('kanal.inspektion', id=i.id) }}">{{ i.datum|de }}</a></td><td>{{ i.firma or '' }}</td><td>{{ i.schaeden|length }} Schäden</td></tr>{% endfor %}</table>
+      {% else %}<p class="leise">Keine Inspektionen.</p>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

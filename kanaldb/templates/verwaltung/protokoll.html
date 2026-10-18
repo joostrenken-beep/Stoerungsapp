@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titel %}Importprotokoll{% endblock %}
+{% block inhalt %}
+<h1>Import {{ p.datei }}</h1>
+<section class="karte-box">
+  <dl class="daten"><dt>Zeitpunkt</dt><dd>{{ p.zeitpunkt|de }}</dd><dt>Format</dt><dd>{{ p.format or '–' }}</dd><dt>Ausgelöst von</dt><dd>{{ p.ausgeloest_von }}</dd>
+    <dt>Ergebnis</dt><dd>{{ 'erfolgreich' if p.erfolgreich else 'fehlgeschlagen' }} – {{ p.knoten }} Schächte, {{ p.haltungen }} Haltungen, {{ p.inspektionen }} Inspektionen, {{ p.schaeden }} Schäden, {{ p.anlagen }} Anlagen</dd></dl>
+  {% if p.meldungen %}<h3>Hinweise</h3><pre class="protokoll">{{ p.meldungen }}</pre>{% endif %}
+</section>
+<p><a href="{{ url_for('verwaltung.importe') }}">← zurück</a></p>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titel %}Kodekatalog{% endblock %}
+{% block inhalt %}
+<h1>Schadenskodes nach DWA-M 149-2</h1>
+<p class="leise">Hauptkodes für Haltungen und Leitungen (B..). Für Schächte gilt die entsprechende D-Gruppe (z. B. DAB = Rissbildung im Schacht). Erweiterbar in <code>kanaldb/daten/dwa_m149_kodes.json</code>.</p>
+{% for gruppe in katalog.values()|map(attribute='gruppe')|unique %}
+<section class="karte-box" style="margin-bottom:1rem"><h2>{{ gruppe }}</h2><div class="tabelle-wrap"><table>
+  <tr><th>Kode</th><th>Bezeichnung</th><th>Charakterisierung 1</th><th>Charakterisierung 2</th><th>Quantifizierung</th></tr>
+  {% for k, info in katalog.items() if info.gruppe == gruppe %}<tr><td><strong>{{ k }}</strong></td><td>{{ info.text }}</td>
+    <td class="klein">{% for c, t in (info.char1 or {}).items() %}{{ c }} = {{ t }}<br>{% endfor %}</td>
+    <td class="klein">{% for c, t in (info.char2 or {}).items() %}{{ c }} = {{ t }}<br>{% endfor %}</td>
+    <td class="klein">{{ info.quant1 or '' }}</td></tr>{% endfor %}
+</table></div></section>
+{% endfor %}
+{% endblock %}

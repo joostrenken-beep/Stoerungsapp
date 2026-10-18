@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Wartungspläne{% endblock %}
+{% block inhalt %}
+<h1>Alle Wartungspläne</h1>
+<p class="leise">Neue Pläne legen Sie auf der Seite der jeweiligen Anlage, des Objekts, der Haltung oder des Schachts an.</p>
+<section class="karte-box"><div class="tabelle-wrap"><table>
+  <tr><th>Tätigkeit</th><th>Objekt</th><th>Intervall</th><th>Zuletzt</th><th>Fällig</th><th class="verbergen-mobil">Zuständig</th></tr>
+  {% for p in plaene %}<tr><td><a href="{{ url_for('betrieb.plan_bearbeiten', id=p.id) }}">{{ p.bezeichnung }}</a>{% if not p.aktiv %} <span class="plakette">inaktiv</span>{% endif %}</td>
+    <td>{% if ziel_url(p.ziel_typ, p.ziel_id) %}<a href="{{ ziel_url(p.ziel_typ, p.ziel_id) }}">{{ p.ziel_anzeige }}</a>{% endif %}</td>
+    <td>{{ p.intervall_monate }} Mon.</td><td>{{ p.letzte_durchfuehrung|de }}</td><td>{{ m.faellig(p) }}</td><td class="verbergen-mobil">{{ p.zustaendig or '' }}</td></tr>{% endfor %}
+</table></div></section>
+{% endblock %}

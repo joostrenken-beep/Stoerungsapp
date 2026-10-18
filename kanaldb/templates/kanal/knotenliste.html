@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Schächte{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><h1>Kanalnetz – Schächte &amp; Bauwerke</h1>
+  {% if current_user.darf_bearbeiten %}<a class="knopf" href="{{ url_for('kanal.knoten_bearbeiten') }}">+ Neuer Schacht</a>{% endif %}</div>
+{% include "kanal/_reiter.html" %}
+{% include "kanal/_filter.html" %}
+<section class="karte-box"><div class="tabelle-wrap"><table>
+  <tr><th>Bezeichnung</th><th>Art</th><th class="verbergen-mobil">Straße / Ortsteil</th><th class="zahl">Deckel</th><th class="zahl">Sohle</th><th class="zahl verbergen-mobil">Tiefe</th><th>ZK</th></tr>
+  {% for k in seite.items %}<tr>
+    <td><a href="{{ url_for('kanal.knoten', id=k.id) }}">{{ k.bezeichnung }}</a>{% if k.knotenart != 'Schacht' %} <span class="plakette">{{ k.knotenart }}</span>{% endif %}</td>
+    <td>{{ m.art(k.kanalart) }}</td><td class="verbergen-mobil">{{ k.strasse or '' }}<br><span class="leise klein">{{ k.ortsteil or '' }}</span></td>
+    <td class="zahl">{{ k.deckelhoehe|de }}</td><td class="zahl">{{ k.sohlhoehe|de }}</td><td class="zahl verbergen-mobil">{{ k.schachttiefe|de }}</td><td>{{ m.zk(k.zustandsklasse) }}</td></tr>{% endfor %}
+</table></div>{{ m.seiten(seite) }}</section>
+{% endblock %}

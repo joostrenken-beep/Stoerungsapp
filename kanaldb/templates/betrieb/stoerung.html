@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Störung #{{ s.id }}{% endblock %}
+{% block kopf %}{{ m.leaflet_kopf() }}{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf">
+  <div><h1>{{ s.titel }}</h1><p>{{ m.prio(s.prioritaet) }} {{ m.status(s.status) }}
+    {% if s.ziel %}· {% if ziel_url(s.ziel_typ, s.ziel_id) %}<a href="{{ ziel_url(s.ziel_typ, s.ziel_id) }}">{{ s.ziel_anzeige }}</a>{% endif %}{% endif %}</p></div>
+  <div class="aktionen">
+    {% if current_user.darf_bearbeiten %}
+      {% for neu in ['in Bearbeitung', 'behoben'] if s.status != neu %}
+      <form method="post" action="{{ url_for('betrieb.stoerung_status', id=s.id) }}" class="inline">{{ m.csrf() }}<input type="hidden" name="status" value="{{ neu }}">
+        <button class="knopf {{ 'zweit' if neu == 'in Bearbeitung' }}">{{ 'Übernehmen' if neu == 'in Bearbeitung' else 'Als behoben melden' }}</button></form>
+      {% endfor %}
+      <a class="knopf zweit" href="{{ url_for('betrieb.stoerung_bearbeiten', id=s.id) }}">Bearbeiten</a>
+    {% endif %}
+  </div>
+</div>
+<div class="raster-2">
+  <div class="stapel">
+    <section class="karte-box"><dl class="daten">
+      <dt>Gemeldet</dt><dd>{{ s.gemeldet_am|de }} von {{ s.gemeldet_von or '–' }} ({{ s.meldeweg or '–' }})</dd>
+      <dt>Beschreibung</dt><dd>{{ s.beschreibung or '–' }}</dd>
+      <dt>Bearbeiter</dt><dd>{{ s.bearbeiter or '–' }}</dd>
+      <dt>Ursache</dt><dd>{{ s.ursache or '–' }}</dd>
+      <dt>Maßnahme</dt><dd>{{ s.massnahme or '–' }}</dd>
+      <dt>Behoben</dt><dd>{{ s.behoben_am|de }}{% if s.ausfallzeit_h is not none %} · Ausfallzeit {{ s.ausfallzeit_h|de(1) }} h{% endif %}</dd>
+    </dl></section>
+    <section class="karte-box"><h2>Fotos &amp; Dokumente</h2>{{ m.dokumentliste(dokumente) }}
+      {% if current_user.darf_bearbeiten %}{{ m.upload_formular('stoerung', s.id) }}{% endif %}</section>
+  </div>
+  {% if position %}<section class="karte-box">{{ m.minikarte('minikarte', [[position[0], position[1], s.titel, '#dc2626']]) }}
+    <p><a class="knopf zweit" href="https://www.google.com/maps/dir/?api=1&destination={{ position[0] }},{{ position[1] }}" target="_blank" rel="noopener">Navigation starten</a></p></section>{% endif %}
+</div>
+{% endblock %}

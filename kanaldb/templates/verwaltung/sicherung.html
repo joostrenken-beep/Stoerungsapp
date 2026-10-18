@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titel %}Datensicherung{% endblock %}
+{% block inhalt %}
+<h1>Datensicherung</h1>
+<section class="karte-box">
+  <p>Sicherungsordner: <code>{{ ordner }}</code><br><span class="leise klein">Bei aktivem Automatikbetrieb wird täglich eine Sicherung erstellt (die letzten 14 bleiben erhalten). Liegt der Ordner in OneDrive/SharePoint, werden die Sicherungen automatisch in die Cloud übertragen.</span></p>
+  <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="knopf">Jetzt sichern</button></form>
+  {% if dateien %}<ul>{% for d in dateien %}<li><a href="{{ url_for('verwaltung.sicherung_laden', name=d) }}">{{ d }}</a></li>{% endfor %}</ul>{% else %}<p class="leise">Noch keine Sicherungen.</p>{% endif %}
+</section>
+{% endblock %}

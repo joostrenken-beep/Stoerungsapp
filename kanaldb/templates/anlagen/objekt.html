@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}{{ o.objekttyp }} {{ o.bezeichnung }}{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf">
+  <div><h1>{{ o.objekttyp }} {{ o.bezeichnung }}</h1><p class="leise"><a href="{{ url_for('anlagen.anlage', id=o.anlage.id) }}">{{ o.anlage.anzeige }}</a></p></div>
+  <div class="aktionen">
+    {% if current_user.darf_bearbeiten %}<a class="knopf" href="{{ url_for('betrieb.stoerung_bearbeiten', ziel_typ='objekt', ziel_id=o.id) }}">+ Störung</a>
+      <a class="knopf zweit" href="{{ url_for('anlagen.objekt_bearbeiten', id=o.id) }}">Bearbeiten</a>{% endif %}
+    {% if current_user.ist_admin %}{{ m.loesch_knopf(url_for('anlagen.objekt_loeschen', id=o.id)) }}{% endif %}
+  </div>
+</div>
+<div class="raster-2">
+  <div class="stapel">{{ m.betrieb_bloecke(ziel_typ, ziel_id, wartungsplaene, massnahmen, stoerungen, dokumente, schaeden_alle) }}</div>
+  <section class="karte-box"><h2>Stammdaten</h2><dl class="daten">
+    <dt>Objekttyp</dt><dd>{{ o.objekttyp }}</dd><dt>Hersteller</dt><dd>{{ o.hersteller or '–' }}</dd>
+    <dt>Typ / Modell</dt><dd>{{ o.typ or '–' }}</dd><dt>Seriennummer</dt><dd>{{ o.seriennummer or '–' }}</dd>
+    <dt>Baujahr</dt><dd>{{ o.baujahr or '–' }}</dd><dt>Leistung</dt><dd>{{ o.leistung_kw|de(1) }} kW</dd>
+    <dt>Förderstrom</dt><dd>{{ o.foerderstrom_ls|de(1) }} l/s</dd><dt>Förderhöhe</dt><dd>{{ o.foerderhoehe_m|de(1) }} m</dd>
+    <dt>Betriebsstunden</dt><dd>{{ o.betriebsstunden|de(0) }}</dd><dt>Status</dt><dd>{{ o.status or '–' }}</dd>
+  </dl>{% if o.bemerkung %}<p>{{ o.bemerkung }}</p>{% endif %}</section>
+</div>
+{% endblock %}

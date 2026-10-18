@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titel %}Benutzer{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><h1>Benutzerverwaltung</h1><a class="knopf zweit" href="{{ url_for('verwaltung.sicherung') }}">Datensicherung</a></div>
+<div class="raster-2">
+  <section class="karte-box"><div class="tabelle-wrap"><table>
+    <tr><th>Benutzer</th><th>Rolle</th><th>Status</th><th>Neues Passwort</th></tr>
+    {% for b in benutzer %}<tr>
+      <td>{{ b.benutzername }}<br><span class="leise klein">{{ b.name or '' }}</span></td>
+      <td><form method="post" action="{{ url_for('verwaltung.benutzer_aendern', id=b.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <select name="rolle" onchange="this.form.submit()">{% for r, t in ROLLEN.items() %}<option value="{{ r }}" {{ 'selected' if b.rolle == r }}>{{ t }}</option>{% endfor %}</select></form></td>
+      <td>{% if b.id != current_user.id %}<form method="post" action="{{ url_for('verwaltung.benutzer_aendern', id=b.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="aktiv" value="{{ '0' if b.aktiv else '1' }}"><button class="knopf klein {{ 'zweit' if b.aktiv else '' }}">{{ 'sperren' if b.aktiv else 'entsperren' }}</button></form>{% else %}(Sie){% endif %}</td>
+      <td><form method="post" action="{{ url_for('verwaltung.benutzer_aendern', id=b.id) }}" class="filter" style="margin:0"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="password" name="passwort" placeholder="mind. 8 Zeichen" autocomplete="new-password"><button class="knopf klein zweit">setzen</button></form></td></tr>{% endfor %}
+  </table></div></section>
+  <section class="karte-box"><h2>Neuer Benutzer</h2>
+    <form method="post" class="stapel"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="feld"><label>Benutzername</label><input name="benutzername" required autocapitalize="none"></div>
+      <div class="feld"><label>Name</label><input name="name"></div>
+      <div class="feld"><label>Rolle</label><select name="rolle">{% for r, t in ROLLEN.items() %}<option value="{{ r }}">{{ t }}</option>{% endfor %}</select></div>
+      <div class="feld"><label>Passwort (mind. 8 Zeichen)</label><input type="password" name="passwort" required minlength="8" autocomplete="new-password"></div>
+      <button class="knopf">Anlegen</button>
+    </form>
+    <p class="klein leise">Lesen: nur ansehen · Bearbeiten: erfassen und ändern · Administration: zusätzlich löschen, Benutzer und Sicherungen.</p>
+  </section>
+</div>
+{% endblock %}

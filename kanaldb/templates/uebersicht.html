@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Übersicht{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf">
+  <div><h1>Übersicht</h1><p class="leise">Stand {{ heute|de }} · angemeldet als {{ current_user.anzeige }} ({{ ROLLEN[current_user.rolle] }}) · <a href="{{ url_for('auth.passwort') }}">Passwort ändern</a></p></div>
+  <div class="aktionen">
+    {% if current_user.darf_bearbeiten %}<a class="knopf" href="{{ url_for('betrieb.stoerung_bearbeiten') }}">+ Störung melden</a>{% endif %}
+    <a class="knopf zweit" href="{{ url_for('start.karte') }}">Karte öffnen</a>
+  </div>
+</div>
+
+<div class="kennzahlen">
+  <div class="kennzahl"><div class="wert">{{ k.laenge_km|de(1) }} km</div><div class="name">Kanalnetz ({{ k.haltungen }} Haltungen)</div></div>
+  <div class="kennzahl"><div class="wert">{{ k.knoten }}</div><div class="name">Schächte &amp; Bauwerke</div></div>
+  <div class="kennzahl"><div class="wert">{{ k.anlagen }}</div><div class="name">Anlagen ({{ k.objekte }} Objekte)</div></div>
+  <div class="kennzahl {{ 'warn' if anzahl_stoerungen }}"><div class="wert">{{ anzahl_stoerungen }}</div><div class="name">offene Störungen</div></div>
+  <div class="kennzahl"><div class="wert">{{ k.schaeden_offen }}</div><div class="name">offene Schäden</div></div>
+</div>
+
+<div class="raster">
+  <section class="karte-box">
+    <h2>Offene Störmeldungen</h2>
+    {% if stoerungen %}<div class="tabelle-wrap"><table>
+      {% for s in stoerungen %}<tr><td>{{ m.prio(s.prioritaet) }}</td>
+        <td><a href="{{ url_for('betrieb.stoerung', id=s.id) }}">{{ s.titel }}</a><br><span class="leise klein">{{ s.ziel_anzeige }} · {{ s.gemeldet_am|seit }}</span></td>
+        <td>{{ m.status(s.status) }}</td></tr>{% endfor %}
+    </table></div>
+    {% if anzahl_stoerungen > stoerungen|length %}<p><a href="{{ url_for('betrieb.stoerungen') }}">alle {{ anzahl_stoerungen }} anzeigen</a></p>{% endif %}
+    {% else %}<p class="leise">Keine offenen Störungen. 👍</p>{% endif %}
+  </section>
+
+  <section class="karte-box">
+    <h2>Fällige Wartungen (30 Tage)</h2>
+    {% if wartungen %}<div class="tabelle-wrap"><table>
+      {% for p in wartungen %}<tr><td>{% if ziel_url(p.ziel_typ, p.ziel_id) %}<a href="{{ ziel_url(p.ziel_typ, p.ziel_id) }}">{{ p.bezeichnung }}</a>{% else %}{{ p.bezeichnung }}{% endif %}<br><span class="leise klein">{{ p.ziel_anzeige }}</span></td>
+        <td>{{ m.faellig(p) }}</td></tr>{% endfor %}
+    </table></div><p><a href="{{ url_for('betrieb.wartung') }}">zur Wartungsübersicht</a></p>
+    {% else %}<p class="leise">Keine Wartungen fällig.</p>{% endif %}
+  </section>
+
+  <section class="karte-box">
+    <h2>Zustand der Haltungen (DWA-M 149-3)</h2>
+    {% set gesamt = zk.values()|sum or 1 %}
+    <div class="balken">
+      {% for kl in range(6) %}
+        <span>{{ m.zk(kl) }} {{ ZUSTANDSKLASSEN[kl][0] }}</span>
+        <div class="spur"><div class="fuell" style="width:{{ (zk.get(kl, 0) / gesamt * 100)|round(1) }}%;background:{{ ZUSTANDSKLASSEN[kl][2] }}"></div></div>
+        <span class="zahl">{{ zk.get(kl, 0) }}</span>
+      {% endfor %}
+      <span>{{ m.zk(none) }} nicht inspiziert</span>
+      <div class="spur"><div class="fuell" style="width:{{ (zk.get(none, 0) / gesamt * 100)|round(1) }}%;background:#98a2b3"></div></div>
+      <span class="zahl">{{ zk.get(none, 0) }}</span>
+    </div>
+    <p class="klein leise">Netzlänge: {% for art, l in laengen.items() if art %}{{ m.art(art) }} {{ (l / 1000)|de(1) }} km {% endfor %}</p>
+  </section>
+
+  <section class="karte-box">
+    <h2>Letzte Importe</h2>
+    {% if importe %}<div class="tabelle-wrap"><table>{% for p in importe %}<tr><td>{{ p.zeitpunkt|de }}</td><td><a href="{{ url_for('verwaltung.protokoll', id=p.id) }}">{{ p.datei }}</a><br><span class="leise klein">{{ p.format or '' }} · {{ p.ausgeloest_von }}</span></td>
+      <td>{% if p.erfolgreich %}<span class="plakette status-behoben">ok</span>{% else %}<span class="plakette status-offen">Fehler</span>{% endif %}</td></tr>{% endfor %}</table></div>
+    {% else %}<p class="leise">Noch keine Importe.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

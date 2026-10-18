@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d2b3e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>{% block titel %}Kanalbetrieb{% endblock %} · Kanalbetriebsdatenbank</title>
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  {% block kopf %}{% endblock %}
+</head>
+<body class="{% block body_klasse %}{% endblock %}">
+{% if current_user.is_authenticated %}
+<header class="kopf">
+  <div class="kopf-innen">
+    <a class="marke" href="{{ url_for('start.uebersicht') }}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18"/></svg>
+      Kanalbetrieb
+    </a>
+    <nav class="nav" id="nav">
+      {% set ep = request.endpoint or '' %}
+      <a href="{{ url_for('start.uebersicht') }}" class="{{ 'aktiv' if ep == 'start.uebersicht' }}">Übersicht</a>
+      <a href="{{ url_for('start.karte') }}" class="{{ 'aktiv' if ep == 'start.karte' }}">Karte</a>
+      <a href="{{ url_for('kanal.haltungen') }}" class="{{ 'aktiv' if ep in ('kanal.haltungen','kanal.haltung','kanal.knotenliste','kanal.knoten') }}">Kanalnetz</a>
+      <a href="{{ url_for('anlagen.liste') }}" class="{{ 'aktiv' if ep.startswith('anlagen.') }}">Anlagen</a>
+      <a href="{{ url_for('betrieb.wartung') }}" class="{{ 'aktiv' if 'wartung' in ep or 'plan' in ep }}">Wartung</a>
+      <a href="{{ url_for('kanal.schaeden') }}" class="{{ 'aktiv' if 'schaden' in ep or ep == 'kanal.schaeden' }}">Schäden</a>
+      <a href="{{ url_for('betrieb.stoerungen') }}" class="{{ 'aktiv' if 'stoerung' in ep }}">Störungen{% if offene_stoerungen %}<span class="zahl">{{ offene_stoerungen }}</span>{% endif %}</a>
+      {% if current_user.darf_bearbeiten %}<a href="{{ url_for('verwaltung.importe') }}" class="{{ 'aktiv' if ep.startswith('verwaltung.import') or ep == 'verwaltung.protokoll' }}">Import</a>{% endif %}
+      {% if current_user.ist_admin %}<a href="{{ url_for('verwaltung.benutzer') }}" class="{{ 'aktiv' if ep in ('verwaltung.benutzer','verwaltung.sicherung') }}">Verwaltung</a>{% endif %}
+      <a class="nur-mobil" href="{{ url_for('start.suche') }}">Suche</a>
+      <form class="nur-mobil" method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Abmelden ({{ current_user.anzeige }})</button></form>
+    </nav>
+    <div class="kopf-rechts">
+      <form action="{{ url_for('start.suche') }}"><input class="suchfeld" name="q" type="search" placeholder="Suche …" aria-label="Suche"></form>
+      <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="knopf zweit klein" title="Abmelden ({{ current_user.anzeige }})">Abmelden</button></form>
+      <button class="menue-knopf" aria-label="Menü" onclick="document.getElementById('nav').classList.toggle('offen')">☰</button>
+    </div>
+  </div>
+</header>
+{% endif %}
+<main>
+  {% with nachrichten = get_flashed_messages(with_categories=true) %}
+    {% if nachrichten %}<ul class="meldungen" {% block meldungen_stil %}{% endblock %}>{% for kat, text in nachrichten %}<li class="{{ kat }}">{{ text }}</li>{% endfor %}</ul>{% endif %}
+  {% endwith %}
+  {% block inhalt %}{% endblock %}
+</main>
+{% block skripte %}{% endblock %}
+</body>
+</html>

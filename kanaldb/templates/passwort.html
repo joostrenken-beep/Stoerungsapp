@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titel %}Passwort ändern{% endblock %}
+{% block inhalt %}
+<div class="anmelden karte-box">
+  <h1>Passwort ändern</h1>
+  <form method="post" class="stapel">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="feld"><label>Aktuelles Passwort</label><input name="alt" type="password" required autocomplete="current-password"></div>
+    <div class="feld"><label>Neues Passwort (mind. 8 Zeichen)</label><input name="neu" type="password" required minlength="8" autocomplete="new-password"></div>
+    <div class="feld"><label>Wiederholen</label><input name="neu2" type="password" required minlength="8" autocomplete="new-password"></div>
+    <button class="knopf">Speichern</button>
+  </form>
+</div>
+{% endblock %}

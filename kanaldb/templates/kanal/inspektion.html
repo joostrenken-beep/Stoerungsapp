@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Inspektion {{ i.datum|de }}{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><div><h1>{{ i.verfahren }} vom {{ i.datum|de }}</h1>
+  <p class="leise">{% if ziel_url(i.ziel_typ, i.ziel_id) %}<a href="{{ ziel_url(i.ziel_typ, i.ziel_id) }}">{{ i.ziel_anzeige }}</a>{% endif %}</p></div></div>
+<div class="raster-2">
+  <section class="karte-box">
+    {% if i.ziel_typ == 'haltung' and i.ziel %}{{ m.haltungsband(i.ziel, i.schaeden, i.gegen_fliessrichtung) }}{% endif %}
+    {{ m.schadenstabelle(i.schaeden) }}
+  </section>
+  <section class="karte-box"><dl class="daten">
+    <dt>Firma</dt><dd>{{ i.firma or '–' }}</dd><dt>Untersucher</dt><dd>{{ i.untersucher or '–' }}</dd>
+    <dt>Richtung</dt><dd>{{ i.richtung or '–' }}</dd><dt>Inspektionslänge</dt><dd>{{ i.inspektionslaenge|de }} m</dd>
+    <dt>Zustandsklasse</dt><dd>{{ m.zk(i.zustandsklasse) }}</dd><dt>Importdatei</dt><dd class="klein">{{ i.quelle or '–' }}</dd>
+  </dl></section>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Störmeldungen{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><h1>Störmeldungen</h1>
+  {% if current_user.darf_bearbeiten %}<a class="knopf" href="{{ url_for('betrieb.stoerung_bearbeiten') }}">+ Neue Störung</a>{% endif %}</div>
+<form class="filter">
+  <input name="q" value="{{ f.q }}" placeholder="Suchbegriff">
+  <select name="status"><option value="">offen + in Bearbeitung</option>{% for s in ['offen', 'in Bearbeitung', 'behoben', 'alle'] %}<option {{ 'selected' if f.status == s }}>{{ s }}</option>{% endfor %}</select>
+  <select name="prioritaet"><option value="">alle Prioritäten</option>{% for p in ['kritisch', 'hoch', 'mittel', 'niedrig'] %}<option {{ 'selected' if f.prioritaet == p }}>{{ p }}</option>{% endfor %}</select>
+  <button class="knopf">Filtern</button>
+</form>
+<section class="karte-box"><div class="tabelle-wrap"><table>
+  <tr><th>Gemeldet</th><th>Störung</th><th>Prio</th><th>Status</th><th class="verbergen-mobil">Bearbeiter</th></tr>
+  {% for s in seite.items %}<tr><td>{{ s.gemeldet_am|de }}<br><span class="leise klein">{{ s.gemeldet_am|seit if s.status != 'behoben' else '' }}</span></td>
+    <td><a href="{{ url_for('betrieb.stoerung', id=s.id) }}">{{ s.titel }}</a><br><span class="leise klein">{{ s.ziel_anzeige }}</span></td>
+    <td>{{ m.prio(s.prioritaet) }}</td><td>{{ m.status(s.status) }}</td><td class="verbergen-mobil">{{ s.bearbeiter or '' }}</td></tr>
+  {% else %}<tr><td colspan="5" class="leise">Keine Störmeldungen.</td></tr>{% endfor %}
+</table></div>{{ m.seiten(seite) }}</section>
+{% endblock %}

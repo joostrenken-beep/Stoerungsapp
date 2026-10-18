@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Schäden{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><h1>Einzelschäden</h1>
+  <div class="aktionen"><a class="knopf zweit" href="{{ url_for('start.karte') }}?schaeden=1">Schäden in der Karte</a><a class="knopf zweit" href="{{ url_for('kanal.kodekatalog') }}">Kodekatalog</a></div></div>
+<form class="filter">
+  <input name="kode" value="{{ f.kode }}" placeholder="Kode, z. B. BAB" style="text-transform:uppercase">
+  <select name="klasse"><option value="">alle Klassen</option>{% for k in range(6) %}<option value="{{ k }}" {{ 'selected' if f.klasse == k|string }}>Klasse ≤ {{ k }}</option>{% endfor %}</select>
+  <select name="status"><option value="">offen + geplant</option>{% for s in ['offen', 'Sanierung geplant', 'saniert'] %}<option {{ 'selected' if f.status == s }}>{{ s }}</option>{% endfor %}</select>
+  <select name="ziel_typ"><option value="">alle Objekte</option>{% for t, n in ZIEL_NAMEN.items() %}<option value="{{ t }}" {{ 'selected' if f.ziel_typ == t }}>{{ n }}</option>{% endfor %}</select>
+  <button class="knopf">Filtern</button>
+  {% set args = request.args.to_dict() %}{% set _ = args.update(export='csv') %}<a class="knopf zweit" href="{{ url_for('kanal.schaeden', **args) }}">CSV-Export</a>
+</form>
+<section class="karte-box">{{ m.schadenstabelle(seite.items, mit_objekt=True) }}{{ m.seiten(seite) }}</section>
+{% endblock %}

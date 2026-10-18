@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titel %}Datenimport{% endblock %}
+{% block inhalt %}
+<h1>Datenimport</h1>
+<div class="raster">
+  <section class="karte-box">
+    <h2>Datei hochladen</h2>
+    <p class="leise">ISYBAU-XML (Stamm- und Zustandsdaten, Formate 2006/2013/2017), DWA-M 150-XML sowie CSV/Excel-Tabellen.</p>
+    <form method="post" enctype="multipart/form-data" class="stapel">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="file" name="datei" multiple accept=".xml,.csv,.xlsx" required>
+      <button class="knopf">Importieren</button>
+    </form>
+    <p class="klein leise">Erst Stammdaten, dann Inspektionsdaten importieren. Vorhandene Objekte werden anhand der Bezeichnung aktualisiert; eine Inspektion desselben Objekts am selben Tag wird ersetzt.</p>
+  </section>
+  <section class="karte-box">
+    <h2>Automatischer Import</h2>
+    <p>Import-Ordner: <code>{{ ordner }}</code></p>
+    <p>{% if auto %}<span class="plakette status-behoben">aktiv</span> – der Ordner wird alle {{ (intervall / 60)|round(1) }} Minuten geprüft.{% else %}<span class="plakette">aus</span> – aktivieren mit <code>KANALDB_AUTO_IMPORT=1</code>.{% endif %}</p>
+    <p class="klein leise">Tipp: Den Ordner mit einer SharePoint-Bibliothek per OneDrive synchronisieren. Dateien, die dort abgelegt werden, landen nach erfolgreichem Import in <code>verarbeitet/</code>, fehlerhafte in <code>fehler/</code>.</p>
+    {% if wartend %}<p>Wartende Dateien:</p><ul>{% for w in wartend %}<li>{{ w }}</li>{% endfor %}</ul>{% endif %}
+    <form method="post" action="{{ url_for('verwaltung.ordner_jetzt') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="knopf zweit">Ordner jetzt einlesen</button></form>
+  </section>
+  <section class="karte-box">
+    <h2>Tabellen-Import (CSV / Excel)</h2>
+    <p class="klein">Erste Zeile = Spaltennamen. Der Inhalt wird an den Spalten erkannt:</p>
+    <ul class="klein">
+      <li><strong>Schächte:</strong> bezeichnung, knotenart, kanalart (SW/RW/MW), ortsteil, strasse, rechtswert, hochwert oder lat, lon, deckelhoehe, sohlhoehe, material, baujahr</li>
+      <li><strong>Haltungen:</strong> bezeichnung, von, bis, kanalart, laenge, dn, material, baujahr, sohle_zulauf, sohle_ablauf, strasse, ortsteil</li>
+      <li><strong>Schäden:</strong> objekt, objektart (haltung/schacht), datum, kode, char1, char2, quant1, station, station_bis, uhr_von, klasse_d, klasse_s, klasse_b, bemerkung</li>
+      <li><strong>Anlagen:</strong> bezeichnung, name, anlagentyp, kanalart, ortsteil, adresse, lat, lon, baujahr, volumen_m3, vorfluter</li>
+    </ul>
+  </section>
+</div>
+<section class="karte-box" style="margin-top:1rem">
+  <h2>Importprotokoll</h2>
+  <div class="tabelle-wrap"><table>
+    <tr><th>Zeitpunkt</th><th>Datei</th><th>Format</th><th>Von</th><th class="zahl">Schächte</th><th class="zahl">Haltungen</th><th class="zahl">Inspekt.</th><th class="zahl">Schäden</th><th class="zahl">Anlagen</th><th>Status</th></tr>
+    {% for p in protokolle %}<tr><td>{{ p.zeitpunkt|de }}</td><td><a href="{{ url_for('verwaltung.protokoll', id=p.id) }}">{{ p.datei }}</a></td><td>{{ p.format or '' }}</td><td>{{ p.ausgeloest_von }}</td>
+      <td class="zahl">{{ p.knoten }}</td><td class="zahl">{{ p.haltungen }}</td><td class="zahl">{{ p.inspektionen }}</td><td class="zahl">{{ p.schaeden }}</td><td class="zahl">{{ p.anlagen }}</td>
+      <td>{% if p.erfolgreich %}<span class="plakette status-behoben">ok{% if p.meldungen %} mit Hinweisen{% endif %}</span>{% else %}<span class="plakette status-offen">Fehler</span>{% endif %}</td></tr>{% endfor %}
+  </table></div>
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+<div class="formular" style="margin-bottom:.75rem">
+  <div class="feld"><label for="ziel">Betroffene Anlage / Objekt</label>
+    {% set aktuell = (obj.ziel_typ ~ ':' ~ obj.ziel_id) if obj.ziel_typ in ('anlage', 'objekt') else '' %}
+    <select id="ziel" name="ziel"><option value="">– keine / Kanalobjekt –</option>
+      {% for a, objekte in objekt_auswahl() %}<optgroup label="{{ a.anlagentyp }} {{ a.name or a.bezeichnung }}">
+        <option value="anlage:{{ a.id }}" {{ 'selected' if aktuell == 'anlage:' ~ a.id }}>{{ a.name or a.bezeichnung }} (gesamt)</option>
+        {% for o in objekte %}<option value="objekt:{{ o.id }}" {{ 'selected' if aktuell == 'objekt:' ~ o.id }}>&nbsp;&nbsp;{{ o.objekttyp }} {{ o.bezeichnung }}</option>{% endfor %}
+      </optgroup>{% endfor %}
+    </select></div>
+  <div class="feld"><label for="kanalobjekt">oder Haltung / Schacht (Bezeichnung)</label>
+    <input id="kanalobjekt" name="kanalobjekt" value="{{ obj.ziel.bezeichnung if obj.ziel_typ in ('haltung', 'knoten') and obj.ziel else '' }}" placeholder="z. B. OHZ-S0042"></div>
+</div>

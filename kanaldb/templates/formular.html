@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block titel %}{{ titel }}{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><h1>{{ titel }}</h1></div>
+<form method="post" class="karte-box" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if request.args.get('weiter') %}<input type="hidden" name="weiter" value="{{ request.args.get('weiter') }}">{% endif %}
+  {% if extra %}{% include extra %}{% endif %}
+  <div class="formular">
+  {% set ns = namespace(geo=false) %}
+  {% for name, label, art, opt in FELDER[typ] %}
+    {% set wert = request.form.get(name) if request.method == 'POST' else obj[name] %}
+    {% if opt.get('geo') %}{% set ns.geo = true %}{% endif %}
+    <div class="feld {{ 'breit' if art == 'textarea' }}">
+      <label for="f_{{ name }}">{{ label }}{% if opt.get('required') %} *{% endif %}</label>
+      {% if art == 'textarea' %}
+        <textarea id="f_{{ name }}" name="{{ name }}" rows="3">{{ wert if wert is not none else '' }}</textarea>
+      {% elif art == 'select' %}
+        <select id="f_{{ name }}" name="{{ name }}">
+          {% if opt.get('leer') %}<option value="">–</option>{% endif %}
+          {% for c in opt.choices %}{% set v, t = (c if c is not string else (c, c)) %}
+            <option value="{{ v }}" {{ 'selected' if wert is not none and wert|string == v|string }}>{{ t if t == v else v ~ ' – ' ~ t }}</option>{% endfor %}
+        </select>
+      {% elif art == 'bool' %}
+        <label class="klein" style="font-weight:400"><input type="checkbox" id="f_{{ name }}" name="{{ name }}" value="1" {{ 'checked' if wert in (true, '1', 'on') }}> ja</label>
+      {% elif art == 'kode' %}
+        <input id="f_{{ name }}" name="{{ name }}" list="kodeliste" value="{{ wert or '' }}" required autocomplete="off" style="text-transform:uppercase">
+        <datalist id="kodeliste">{% for k, info in (katalog or {}).items() %}<option value="{{ k }}">{{ info.text }}</option>{% endfor %}</datalist>
+        <span class="klein leise" id="kodetext"></span>
+      {% else %}
+        {% if art == 'date' %}{% set wert = wert.isoformat() if wert and wert.isoformat is defined else wert %}{% endif %}
+        {% if art == 'datetime' %}{% set wert = wert.strftime('%Y-%m-%dT%H:%M') if wert and wert.strftime is defined else wert %}{% endif %}
+        <input id="f_{{ name }}" name="{{ name }}" value="{{ wert if wert is not none else '' }}"
+          {% if art == 'date' %}type="date"{% elif art == 'datetime' %}type="datetime-local"{% elif art in ('int', 'float') %}inputmode="decimal"{% endif %}
+          {% if opt.get('required') %}required{% endif %}>
+      {% endif %}
+    </div>
+  {% endfor %}
+  {% if foto_upload %}
+    <div class="feld breit"><label for="foto">Fotos / Dateien anhängen</label>
+      <input type="file" id="foto" name="foto" accept="image/*" capture="environment" multiple></div>
+  {% endif %}
+  </div>
+  <div class="aktionen" style="margin-top:1rem">
+    <button class="knopf">Speichern</button>
+    {% if ns.geo %}<button type="button" class="knopf zweit" id="standort">📍 Aktuellen Standort übernehmen</button>{% endif %}
+    <a class="knopf zweit" href="javascript:history.back()">Abbrechen</a>
+  </div>
+</form>
+{% endblock %}
+{% block skripte %}
+<script>
+(function () {
+  var knopf = document.getElementById('standort');
+  if (knopf) knopf.addEventListener('click', function () {
+    if (!navigator.geolocation) { alert('Standortbestimmung wird nicht unterstützt.'); return; }
+    knopf.disabled = true; knopf.textContent = 'Standort wird ermittelt …';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      document.getElementById('f_lat').value = pos.coords.latitude.toFixed(7);
+      document.getElementById('f_lon').value = pos.coords.longitude.toFixed(7);
+      knopf.textContent = '📍 Standort übernommen (±' + Math.round(pos.coords.accuracy) + ' m)'; knopf.disabled = false;
+    }, function (e) { alert('Standort nicht verfügbar: ' + e.message); knopf.disabled = false; knopf.textContent = '📍 Aktuellen Standort übernehmen'; },
+    {enableHighAccuracy: true, timeout: 15000});
+  });
+  {% if katalog %}
+  var katalog = {{ katalog|tojson }};
+  var kode = document.getElementById('f_kode'), text = document.getElementById('kodetext');
+  function basis(k) { k = (k || '').toUpperCase(); return (k.length === 3 && k[0] === 'D') ? 'B' + k.slice(1) : k; }
+  function liste(feld, optionen) {
+    var id = 'dl_' + feld, dl = document.getElementById(id) || document.createElement('datalist');
+    dl.id = id; dl.innerHTML = '';
+    Object.keys(optionen || {}).forEach(function (o) { var e = document.createElement('option'); e.value = o; e.textContent = optionen[o]; dl.appendChild(e); });
+    document.body.appendChild(dl); document.getElementById('f_' + feld).setAttribute('list', id);
+  }
+  function aktualisieren() {
+    var info = katalog[basis(kode.value)];
+    text.textContent = info ? info.text + (info.quant1 ? ' · Quantifizierung: ' + info.quant1 : '') : (kode.value ? 'nicht im Katalog' : '');
+    liste('char1', info && info.char1); liste('char2', info && info.char2);
+  }
+  kode.addEventListener('input', aktualisieren); aktualisieren();
+  {% endif %}
+})();
+</script>
+{% endblock %}

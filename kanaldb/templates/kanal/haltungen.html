@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Haltungen{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><h1>Kanalnetz – Haltungen</h1>
+  {% if current_user.darf_bearbeiten %}<a class="knopf" href="{{ url_for('kanal.haltung_bearbeiten') }}">+ Neue Haltung</a>{% endif %}</div>
+{% include "kanal/_reiter.html" %}
+{% include "kanal/_filter.html" %}
+<section class="karte-box"><div class="tabelle-wrap"><table>
+  <tr><th>Haltung</th><th>Art</th><th class="verbergen-mobil">Straße / Ortsteil</th><th class="zahl">Länge</th><th class="zahl verbergen-mobil">DN</th><th class="verbergen-mobil">Material</th><th class="verbergen-mobil">Baujahr</th><th>ZK</th><th class="verbergen-mobil">Insp.</th></tr>
+  {% for h in seite.items %}<tr>
+    <td><a href="{{ url_for('kanal.haltung', id=h.id) }}">{{ h.bezeichnung }}</a>{% if h.funktion == 'Druckleitung' %} <span class="plakette">DL</span>{% endif %}</td>
+    <td>{{ m.art(h.kanalart) }}</td><td class="verbergen-mobil">{{ h.strasse or '' }}<br><span class="leise klein">{{ h.ortsteil or '' }}</span></td>
+    <td class="zahl">{{ h.laenge|de(1) }} m</td><td class="zahl verbergen-mobil">{{ h.dn or '' }}</td><td class="verbergen-mobil">{{ h.material or '' }}</td>
+    <td class="verbergen-mobil">{{ h.baujahr or '' }}</td><td>{{ m.zk(h.zustandsklasse) }}</td><td class="verbergen-mobil">{{ h.letzte_inspektion|de }}</td></tr>{% endfor %}
+</table></div>{{ m.seiten(seite) }}</section>
+{% endblock %}

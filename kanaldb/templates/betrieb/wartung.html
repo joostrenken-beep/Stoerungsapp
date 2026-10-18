@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Wartung{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><h1>Wartung &amp; Inspektion</h1>
+  <div class="aktionen"><a class="knopf zweit" href="{{ url_for('betrieb.wartungsplaene') }}">Alle Wartungspläne</a></div></div>
+<form class="filter"><label class="klein">Fällig innerhalb
+  <select name="tage" onchange="this.form.submit()">{% for t in (14, 30, 60, 90, 180, 365) %}<option value="{{ t }}" {{ 'selected' if tage == t }}>{{ t }} Tagen</option>{% endfor %}</select></label></form>
+<div class="raster-2">
+  <section class="karte-box"><h2>Fällige und überfällige Termine</h2>
+    {% if plaene %}<div class="tabelle-wrap"><table>
+      <tr><th>Fällig</th><th>Tätigkeit</th><th>Objekt</th><th class="verbergen-mobil">Zuständig</th><th></th></tr>
+      {% for p in plaene %}<tr><td>{{ m.faellig(p) }}</td><td>{{ p.bezeichnung }}<br><span class="leise klein">{{ p.art }} · alle {{ p.intervall_monate }} Monate</span></td>
+        <td>{% if ziel_url(p.ziel_typ, p.ziel_id) %}<a href="{{ ziel_url(p.ziel_typ, p.ziel_id) }}">{{ p.ziel_anzeige }}</a>{% endif %}</td>
+        <td class="verbergen-mobil">{{ p.zustaendig or '' }}</td>
+        <td>{% if current_user.darf_bearbeiten %}<a class="knopf klein" href="{{ url_for('betrieb.massnahme_bearbeiten', ziel_typ=p.ziel_typ, ziel_id=p.ziel_id, plan=p.id, weiter=request.full_path) }}">erledigt</a>{% endif %}</td></tr>{% endfor %}
+    </table></div>{% else %}<p class="leise">Keine Termine im gewählten Zeitraum.</p>{% endif %}
+    {% if ohne_termin %}<h3>Pläne ohne Termin</h3><ul>{% for p in ohne_termin %}<li><a href="{{ url_for('betrieb.plan_bearbeiten', id=p.id) }}">{{ p.bezeichnung }}</a> – {{ p.ziel_anzeige }}</li>{% endfor %}</ul>{% endif %}
+  </section>
+  <section class="karte-box"><h2>Zuletzt dokumentiert</h2>
+    <table>{% for x in letzte %}<tr><td>{{ x.datum|de }}</td><td>{{ x.art }}<br><span class="leise klein">{% if ziel_url(x.ziel_typ, x.ziel_id) %}<a href="{{ ziel_url(x.ziel_typ, x.ziel_id) }}">{{ x.ziel_anzeige }}</a>{% endif %}</span></td><td class="klein">{{ x.ergebnis }}</td></tr>{% endfor %}</table>
+  </section>
+</div>
+{% endblock %}

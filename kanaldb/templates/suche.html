@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titel %}Suche{% endblock %}
+{% block inhalt %}
+<h1>Suche</h1>
+<form class="filter"><input name="q" value="{{ text }}" placeholder="Bezeichnung, Straße, Seriennummer …" autofocus><button class="knopf">Suchen</button></form>
+{% if text %}
+<section class="karte-box">
+  {% if treffer %}<div class="tabelle-wrap"><table>
+    <tr><th>Art</th><th>Bezeichnung</th><th>Info</th></tr>
+    {% for art, bez, info, typ, obj in treffer %}<tr><td>{{ art }}</td><td><a href="{{ ziel_url(typ, obj.id) }}">{{ bez }}</a></td><td class="leise">{{ info }}</td></tr>{% endfor %}
+  </table></div>{% else %}<p class="leise">Keine Treffer für „{{ text }}“.</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Anlagen{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf"><h1>Anlagen &amp; Sonderbauwerke</h1>
+  {% if current_user.darf_bearbeiten %}<a class="knopf" href="{{ url_for('anlagen.anlage_bearbeiten') }}">+ Neue Anlage</a>{% endif %}</div>
+<form class="filter">
+  <input name="q" value="{{ f.q }}" placeholder="Name, Kennung, Adresse">
+  <select name="typ"><option value="">Alle Typen</option>{% for t in typen %}<option {{ 'selected' if f.typ == t }}>{{ t }}</option>{% endfor %}</select>
+  <select name="ortsteil"><option value="">Alle Ortsteile</option>{% for o in ortsteile %}<option {{ 'selected' if f.ortsteil == o }}>{{ o }}</option>{% endfor %}</select>
+  <button class="knopf">Filtern</button>
+</form>
+<section class="karte-box"><div class="tabelle-wrap"><table>
+  <tr><th>Anlage</th><th>Typ</th><th class="verbergen-mobil">Ortsteil</th><th class="verbergen-mobil">Vorfluter</th><th class="zahl verbergen-mobil">Volumen</th><th class="zahl">Objekte</th><th>Status</th></tr>
+  {% for a in anlagen %}<tr>
+    <td><a href="{{ url_for('anlagen.anlage', id=a.id) }}">{{ a.name or a.bezeichnung }}</a><br><span class="leise klein">{{ a.bezeichnung }}</span></td>
+    <td>{{ a.anlagentyp }} {{ m.art(a.kanalart) }}</td><td class="verbergen-mobil">{{ a.ortsteil or '' }}</td><td class="verbergen-mobil">{{ a.vorfluter or '' }}</td>
+    <td class="zahl verbergen-mobil">{% if a.volumen_m3 %}{{ a.volumen_m3|de(0) }} m³{% endif %}</td><td class="zahl">{{ a.objekte|length }}</td><td>{{ a.status }}</td></tr>{% endfor %}
+</table></div><p class="leise klein">{{ anlagen|length }} Anlagen</p></section>
+{% endblock %}

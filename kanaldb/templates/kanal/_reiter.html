@@ -1,0 +1,5 @@
+<div class="aktionen" style="margin-bottom:1rem">
+  <a class="knopf {{ '' if request.endpoint == 'kanal.haltungen' else 'zweit' }}" href="{{ url_for('kanal.haltungen') }}">Haltungen</a>
+  <a class="knopf {{ '' if request.endpoint == 'kanal.knotenliste' else 'zweit' }}" href="{{ url_for('kanal.knotenliste') }}">Schächte &amp; Bauwerke</a>
+  <a class="knopf zweit" href="{{ url_for('kanal.kodekatalog') }}">Schadenskodes DWA-M 149-2</a>
+</div>

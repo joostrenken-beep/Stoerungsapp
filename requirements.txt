@@ -1,2 +1,5 @@
-flask
-werkzeug
+Flask>=3.0
+Flask-SQLAlchemy>=3.1
+Flask-Login>=0.6
+openpyxl>=3.1
+waitress>=3.0

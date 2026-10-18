@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Karte{% endblock %}
+{% block body_klasse %}karte-seite{% endblock %}
+{% block kopf %}{{ m.leaflet_kopf() }}{% endblock %}
+{% block meldungen_stil %}style="position:absolute;z-index:1001;top:60px;left:60px;right:10px"{% endblock %}
+{% block inhalt %}
+<div class="kartenleiste">
+  <div class="kartensuche"><input id="suche" type="search" placeholder="Haltung, Schacht, Anlage, Straße …" autocomplete="off"><ul id="treffer" hidden></ul></div>
+  <select id="ortsteil" title="Ortsteil"><option value="">Alle Ortsteile</option>{% for o in ortsteile %}<option>{{ o }}</option>{% endfor %}</select>
+  <select id="faerbung" title="Einfärbung der Haltungen"><option value="kanalart">Farbe: Kanalart</option><option value="zk">Farbe: Zustandsklasse</option></select>
+</div>
+<div id="karte"></div>
+{% endblock %}
+{% block skripte %}
+<script>
+(function () {
+  var ZK = {{ ZUSTANDSKLASSEN|tojson }};
+  var ART = {SW: '#8b5a2b', RW: '#1d6fd6', MW: '#7a3fb8'};
+  var PRIO = {kritisch: '#7f1d1d', hoch: '#dc2626', mittel: '#f59e0b', niedrig: '#64748b'};
+  var params = new URLSearchParams(location.search);
+
+  var karte = L.map('karte', {preferCanvas: true, zoomControl: true}).setView({{ zentrum|list|tojson }}, 13);
+  var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 21, maxNativeZoom: 19, attribution: '&copy; OpenStreetMap-Mitwirkende'}).addTo(karte);
+  var luftbild = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom: 21, maxNativeZoom: 19, attribution: 'Luftbild &copy; Esri, Maxar, Earthstar Geographics'});
+  var grau = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom: 21, maxNativeZoom: 20, attribution: '&copy; OpenStreetMap, &copy; CARTO'});
+
+  var ebenen = {
+    haltungen: L.layerGroup().addTo(karte), knoten: L.layerGroup(), anlagen: L.layerGroup().addTo(karte),
+    schaeden: L.layerGroup(), stoerungen: L.layerGroup().addTo(karte)
+  };
+  L.control.layers({'OpenStreetMap': osm, 'Grau (CARTO)': grau, 'Luftbild (Esri)': luftbild}, {
+    'Haltungen': ebenen.haltungen, 'Schächte (ab Zoom 16)': ebenen.knoten, 'Anlagen': ebenen.anlagen,
+    'Einzelschäden': ebenen.schaeden, 'Offene Störungen': ebenen.stoerungen
+  }, {collapsed: window.innerWidth < 900}).addTo(karte);
+  L.control.scale({imperial: false}).addTo(karte);
+
+  var standort = L.control({position: 'topleft'});
+  standort.onAdd = function () {
+    var b = L.DomUtil.create('a', 'leaflet-bar'); b.href = '#'; b.title = 'Mein Standort'; b.innerHTML = '📍';
+    b.style.cssText = 'display:block;width:34px;height:34px;line-height:34px;text-align:center;background:#fff;font-size:18px';
+    L.DomEvent.on(b, 'click', function (e) { L.DomEvent.preventDefault(e); karte.locate({setView: true, maxZoom: 18, enableHighAccuracy: true}); });
+    return b;
+  };
+  standort.addTo(karte);
+  var ich = null;
+  karte.on('locationfound', function (e) { if (ich) karte.removeLayer(ich); ich = L.circle(e.latlng, {radius: e.accuracy, color: '#0b5f8a'}).addTo(karte); });
+  karte.on('locationerror', function (e) { alert('Standort nicht verfügbar: ' + e.message); });
+
+  var legende = L.control({position: 'bottomright'});
+  legende.onAdd = function () { this.div = L.DomUtil.create('div', 'legende'); return this.div; };
+  legende.addTo(karte);
+  function legendeZeichnen() {
+    var h = '';
+    if (faerbung() === 'zk') { for (var k = 0; k <= 5; k++) h += '<i style="background:' + ZK[k][2] + '"></i>ZK ' + k + ' ' + ZK[k][0] + '<br>'; h += '<i style="background:#98a2b3"></i>nicht bewertet<br>'; }
+    else h = '<i style="background:' + ART.SW + '"></i>Schmutzwasser<br><i style="background:' + ART.SW + ';border-top:2px dashed #fff"></i>Druckleitung<br><i style="background:' + ART.RW + '"></i>Regenwasser<br>';
+    h += '<b class="p" style="background:#0b5f8a"></b>Pumpwerk/Anlage<br><b class="p" style="background:#dc2626"></b>Störung / Schaden';
+    legende.div.innerHTML = h;
+  }
+
+  function faerbung() { return document.getElementById('faerbung').value; }
+  function ortsteil() { return document.getElementById('ortsteil').value; }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
+  function laden(ebene, extra) {
+    var q = new URLSearchParams(extra || {}); if (ortsteil()) q.set('ortsteil', ortsteil());
+    return fetch('{{ url_for("start.geo", ebene="X") }}'.replace('X', ebene) + '?' + q).then(function (r) { return r.json(); });
+  }
+
+  var haltungDaten = null, knotenDaten = null;
+  function haltungenZeichnen() {
+    ebenen.haltungen.clearLayers();
+    if (!haltungDaten) return;
+    L.geoJSON(haltungDaten, {
+      style: function (f) {
+        var p = f.properties, farbe = faerbung() === 'zk' ? (p.zk == null ? '#98a2b3' : ZK[p.zk][2]) : (ART[p.kanalart] || '#475467');
+        return {color: farbe, weight: p.funktion === 'Druckleitung' ? 3 : (p.dn >= 500 ? 5 : 3.5), dashArray: p.funktion === 'Druckleitung' ? '6 6' : null, opacity: .95};
+      },
+      onEachFeature: function (f, l) {
+        var p = f.properties;
+        l.bindPopup('<strong><a href="' + p.url + '">Haltung ' + esc(p.bez) + '</a></strong><br>' + esc(p.strasse || '') +
+          '<br>' + esc(p.kanalart) + ' · DN ' + esc(p.dn) + ' · ' + esc(p.material || '') + ' · ' + (p.laenge ? p.laenge.toFixed(1) + ' m' : '') +
+          (p.funktion === 'Druckleitung' ? '<br>Druckleitung' : '') + '<br>Zustandsklasse: ' + (p.zk == null ? 'nicht bewertet' : p.zk + ' (' + ZK[p.zk][0] + ')'));
+      }
+    }).addTo(ebenen.haltungen);
+  }
+  function knotenZeichnen() {
+    ebenen.knoten.clearLayers();
+    if (!knotenDaten || karte.getZoom() < 16) return;
+    var b = karte.getBounds().pad(0.2);
+    L.geoJSON({type: 'FeatureCollection', features: knotenDaten.features.filter(function (f) { var c = f.geometry.coordinates; return b.contains([c[1], c[0]]); })}, {
+      pointToLayer: function (f, ll) {
+        var p = f.properties, bauwerk = p.art !== 'Schacht';
+        return L.circleMarker(ll, {radius: bauwerk ? 7 : 4.5, color: '#fff', weight: 1.5, fillOpacity: 1,
+          fillColor: faerbung() === 'zk' && p.zk != null ? ZK[p.zk][2] : (ART[p.kanalart] || '#475467')});
+      },
+      onEachFeature: function (f, l) { var p = f.properties; l.bindPopup('<strong><a href="' + p.url + '">' + esc(p.art) + ' ' + esc(p.bez) + '</a></strong>' + (p.zk != null ? '<br>Zustandsklasse ' + p.zk : '')); }
+    }).addTo(ebenen.knoten);
+  }
+  function anlagenZeichnen(daten) {
+    ebenen.anlagen.clearLayers();
+    L.geoJSON(daten, {
+      pointToLayer: function (f, ll) {
+        var p = f.properties, symbol = {'Pumpwerk': 'P', 'Regenrückhaltebecken': 'R', 'Auslaufbauwerk': 'A', 'Kläranlage': 'KA'}[p.typ] || '•';
+        var rot = p.stoerungen > 0;
+        return L.marker(ll, {icon: L.divIcon({className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+          html: '<div style="width:28px;height:28px;border-radius:50%;background:' + (rot ? '#dc2626' : (p.kanalart === 'RW' ? '#1d6fd6' : '#0b5f8a')) +
+            ';color:#fff;font:700 12px system-ui;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)">' + symbol + '</div>'})});
+      },
+      onEachFeature: function (f, l) { var p = f.properties; l.bindPopup('<strong><a href="' + p.url + '">' + esc(p.bez) + '</a></strong><br>' + esc(p.typ) + (p.stoerungen ? '<br><span style="color:#b42318">' + p.stoerungen + ' offene Störung(en)</span>' : '')); }
+    }).addTo(ebenen.anlagen);
+  }
+  function punkteZeichnen(gruppe, daten, farbe, popup) {
+    gruppe.clearLayers();
+    L.geoJSON(daten, {
+      pointToLayer: function (f, ll) { return L.circleMarker(ll, {radius: 6, color: '#fff', weight: 1.5, fillColor: farbe(f.properties), fillOpacity: 1}); },
+      onEachFeature: function (f, l) { l.bindPopup(popup(f.properties)); }
+    }).addTo(gruppe);
+  }
+
+  function allesLaden() {
+    laden('haltungen').then(function (d) { haltungDaten = d; haltungenZeichnen(); if (!params.get('lat') && !ortsteil() && !allesLaden.zentriert && d.features.length) { karte.fitBounds(L.geoJSON(d).getBounds()); allesLaden.zentriert = true; } else if (ortsteil() && d.features.length) karte.fitBounds(L.geoJSON(d).getBounds()); });
+    laden('knoten').then(function (d) { knotenDaten = d; knotenZeichnen(); });
+    laden('anlagen').then(anlagenZeichnen);
+    if (karte.hasLayer(ebenen.schaeden)) schaedenLaden();
+    laden('stoerungen').then(function (d) {
+      punkteZeichnen(ebenen.stoerungen, d, function (p) { return PRIO[p.prioritaet] || '#dc2626'; }, function (p) {
+        return '<strong><a href="' + p.url + '">' + esc(p.titel) + '</a></strong><br>' + esc(p.objekt) + '<br>' + esc(p.datum) + ' · ' + esc(p.prioritaet) + ' · ' + esc(p.status);
+      });
+    });
+  }
+  function schaedenLaden() {
+    laden('schaeden').then(function (d) {
+      punkteZeichnen(ebenen.schaeden, d, function (p) { return p.klasse == null ? '#98a2b3' : ZK[p.klasse][2]; }, function (p) {
+        return '<strong><a href="' + p.url + '">' + esc(p.kode) + '</a></strong> ' + esc(p.text) + '<br>' + esc(p.objekt) +
+          (p.station != null ? ' · Station ' + p.station + ' m' : '') + '<br>Schadensklasse ' + (p.klasse == null ? '–' : p.klasse) + ' · ' + esc(p.status);
+      });
+    });
+  }
+  karte.on('overlayadd', function (e) { if (e.layer === ebenen.schaeden) schaedenLaden(); if (e.layer === ebenen.knoten) knotenZeichnen(); });
+  karte.on('moveend', knotenZeichnen);
+  document.getElementById('faerbung').addEventListener('change', function () { haltungenZeichnen(); knotenZeichnen(); legendeZeichnen(); });
+  document.getElementById('ortsteil').addEventListener('change', allesLaden);
+
+  // Suche
+  var suche = document.getElementById('suche'), treffer = document.getElementById('treffer'), timer;
+  suche.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (suche.value.length < 2) { treffer.hidden = true; return; }
+      fetch('{{ url_for("start.api_suche") }}?q=' + encodeURIComponent(suche.value)).then(function (r) { return r.json(); }).then(function (liste) {
+        treffer.innerHTML = liste.length ? '' : '<li>Keine Treffer</li>';
+        liste.forEach(function (t) {
+          var li = document.createElement('li'); li.innerHTML = '<strong>' + esc(t.bez) + '</strong> <span class="leise">' + esc(t.art) + '</span><br><span class="klein leise">' + esc(t.info) + '</span>';
+          li.onclick = function () { treffer.hidden = true; if (t.lat) { karte.setView([t.lat, t.lon], 18); L.popup().setLatLng([t.lat, t.lon]).setContent('<a href="' + t.url + '">' + esc(t.art + ' ' + t.bez) + '</a>').openOn(karte); } else location.href = t.url; };
+          treffer.appendChild(li);
+        });
+        treffer.hidden = false;
+      });
+    }, 250);
+  });
+
+  if (params.get('lat')) {
+    var ll = [parseFloat(params.get('lat')), parseFloat(params.get('lon'))];
+    karte.setView(ll, parseInt(params.get('z') || '18', 10));
+    L.circleMarker(ll, {radius: 14, color: '#e8590c', weight: 3, fill: false}).addTo(karte);
+  }
+  if (params.get('schaeden')) karte.addLayer(ebenen.schaeden);
+  legendeZeichnen();
+  allesLaden();
+})();
+</script>
+{% endblock %}

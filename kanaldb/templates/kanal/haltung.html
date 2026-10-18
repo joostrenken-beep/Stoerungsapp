@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}Haltung {{ h.bezeichnung }}{% endblock %}
+{% block kopf %}{{ m.leaflet_kopf() }}{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf">
+  <div><h1>Haltung {{ h.bezeichnung }} {{ m.art(h.kanalart) }} {{ m.zk(h.zustandsklasse) }}</h1>
+    <p class="leise">{{ h.strasse or '' }} · {{ h.ortsteil or '' }}{% if h.funktion == 'Druckleitung' %} · Druckleitung{% endif %}</p></div>
+  <div class="aktionen">
+    {% set p = h.position() %}{% if p %}<a class="knopf zweit" href="{{ url_for('start.karte', lat=p[0], lon=p[1], z=18, schaeden=1) }}">In Karte</a>{% endif %}
+    {% if current_user.darf_bearbeiten %}<a class="knopf zweit" href="{{ url_for('kanal.haltung_bearbeiten', id=h.id) }}">Bearbeiten</a>{% endif %}
+    {% if current_user.ist_admin %}{{ m.loesch_knopf(url_for('kanal.loeschen', typ='haltung', id=h.id), frage='Haltung mit allen Inspektionen und Schäden löschen?') }}{% endif %}
+  </div>
+</div>
+
+<div class="raster-2">
+  <div class="stapel">
+    <section class="karte-box">
+      <h2>Schadensbild {% if aktuelle %}<span class="leise klein">Inspektion vom {{ aktuelle.datum|de }}</span>{% endif %}</h2>
+      {% if band %}{{ m.haltungsband(h, band, aktuelle.gegen_fliessrichtung if aktuelle else False) }}
+      {% else %}<p class="leise">{% if aktuelle %}Bei der letzten Inspektion wurden keine Schäden festgestellt.{% else %}Noch keine Inspektion erfasst.{% endif %}</p>{% endif %}
+    </section>
+    {{ m.betrieb_bloecke(ziel_typ, ziel_id, wartungsplaene, massnahmen, stoerungen, dokumente, schaeden_alle) }}
+  </div>
+  <div class="stapel">
+    <section class="karte-box">
+      <h2>Stammdaten</h2>
+      <dl class="daten">
+        <dt>Von Schacht</dt><dd>{% if h.von_knoten %}<a href="{{ url_for('kanal.knoten', id=h.von_knoten.id) }}">{{ h.von_knoten.bezeichnung }}</a>{% else %}–{% endif %}</dd>
+        <dt>Bis Schacht</dt><dd>{% if h.bis_knoten %}<a href="{{ url_for('kanal.knoten', id=h.bis_knoten.id) }}">{{ h.bis_knoten.bezeichnung }}</a>{% else %}–{% endif %}</dd>
+        <dt>Kanalart</dt><dd>{{ KANALARTEN.get(h.kanalart, '–') }}</dd>
+        <dt>Funktion</dt><dd>{{ h.funktion or '–' }}</dd>
+        <dt>Länge</dt><dd>{{ h.laenge|de }} m</dd>
+        <dt>Profil</dt><dd>{{ h.profilart or '' }} DN {{ h.dn or '–' }}{% if h.profilbreite and h.profilbreite != h.dn %} / {{ h.profilbreite }}{% endif %}</dd>
+        <dt>Material</dt><dd>{{ h.material or '–' }}</dd>
+        <dt>Baujahr</dt><dd>{{ h.baujahr or '–' }}</dd>
+        <dt>Sohle Zulauf</dt><dd>{{ h.sohle_zulauf|de }} m</dd>
+        <dt>Sohle Ablauf</dt><dd>{{ h.sohle_ablauf|de }} m</dd>
+        <dt>Gefälle</dt><dd>{{ h.gefaelle_promille|de(1) }} ‰</dd>
+        <dt>Zustandsklasse</dt><dd>{{ m.zk(h.zustandsklasse) }} {% if h.zustandsklasse is not none %}{{ ZUSTANDSKLASSEN[h.zustandsklasse][0] }} – {{ ZUSTANDSKLASSEN[h.zustandsklasse][1] }}{% endif %}</dd>
+        <dt>Letzte Inspektion</dt><dd>{{ h.letzte_inspektion|de }}</dd>
+        <dt>Status</dt><dd>{{ h.status or '–' }}</dd>
+        <dt>Datenquelle</dt><dd class="klein">{{ h.quelle or '–' }}</dd>
+      </dl>
+      {% if h.bemerkung %}<p>{{ h.bemerkung }}</p>{% endif %}
+    </section>
+    <section class="karte-box">
+      {% set linie = h.koordinaten() %}
+      {% set pkt = [] %}{% for s in band if s.position() %}{% set pos = s.position() %}{% set _ = pkt.append([pos[0], pos[1], s.kode_voll ~ ' (' ~ (s.station or 0) ~ ' m)', ZUSTANDSKLASSEN[s.schadensklasse][2] if s.schadensklasse is not none else '#98a2b3']) %}{% endfor %}
+      {{ m.minikarte('minikarte', pkt, linie) }}
+    </section>
+    <section class="karte-box">
+      <h2>Inspektionen</h2>
+      {% if inspektionen %}<table>{% for i in inspektionen %}<tr><td><a href="{{ url_for('kanal.inspektion', id=i.id) }}">{{ i.datum|de }}</a></td><td>{{ i.verfahren }}<br><span class="leise klein">{{ i.firma or '' }} · {{ i.richtung }}</span></td><td>{{ i.schaeden|length }} Einträge</td></tr>{% endfor %}</table>
+      {% else %}<p class="leise">Keine Inspektionen. Inspektionsdaten werden per ISYBAU-/DWA-Import übernommen.</p>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

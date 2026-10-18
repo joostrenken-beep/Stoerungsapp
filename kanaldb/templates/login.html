@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titel %}Anmelden{% endblock %}
+{% block inhalt %}
+<div class="anmelden karte-box">
+  <h1>Kanalbetriebsdatenbank</h1>
+  <p class="leise">Bitte melden Sie sich an.</p>
+  <form method="post" class="stapel">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="feld"><label for="b">Benutzername</label><input id="b" name="benutzername" autocomplete="username" autocapitalize="none" required autofocus></div>
+    <div class="feld"><label for="p">Passwort</label><input id="p" name="passwort" type="password" autocomplete="current-password" required></div>
+    <label class="klein"><input type="checkbox" name="merken" value="1"> angemeldet bleiben</label>
+    <button class="knopf" style="width:100%;justify-content:center">Anmelden</button>
+  </form>
+  {% if erster_start %}<p class="meldungen"><span class="info" style="display:block;padding:.6rem;border-radius:8px">Noch keine Benutzer vorhanden. Legen Sie einen Administrator an mit<br><code>flask --app app benutzer-anlegen admin</code><br>oder laden Sie die Beispieldaten mit <code>flask --app app demo-laden</code>.</span></p>{% endif %}
+</div>
+{% endblock %}

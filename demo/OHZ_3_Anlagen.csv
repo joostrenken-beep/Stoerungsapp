@@ -1,0 +1,30 @@
+bezeichnung;name;anlagentyp;kanalart;ortsteil;adresse;lat;lon;baujahr;volumen_m3;vorfluter;bemerkung
+KA-LINTEL;Kläranlage Lintel;Kläranlage;SW;Lintel;Lintel, 27711 Osterholz-Scharmbeck (Lage angenähert);53,2118000;8,7585000;1968;;Hamme;Fiktive Anlagendaten. Zulauf aller Schmutzwasserkanäle der Stadt.
+OHZ-RRB01;RRB Innenstadt Nord;Regenrückhaltebecken;RW;Kernstadt;nahe Lindenstraße, 27711 Osterholz-Scharmbeck;53,2271561;8,7977926;1968;950,0;Scharmbecker Bach;Offenes Erdbecken mit Drosselablauf (fiktiv).
+OHZ-A01;Auslauf Innenstadt Nord – Scharmbecker Bach;Auslaufbauwerk;RW;Kernstadt;Einleitstelle Scharmbecker Bach;53,2268366;8,7963261;1958;;Scharmbecker Bach;Dezentrale Regenwassereinleitung (fiktiv).
+OHZ-RRB02;RRB Innenstadt Süd;Regenrückhaltebecken;RW;Kernstadt;nahe Loger Straße, 27711 Osterholz-Scharmbeck;53,2254158;8,7957993;1972;3960,0;Scharmbecker Bach;Offenes Erdbecken mit Drosselablauf (fiktiv).
+OHZ-A02;Auslauf Innenstadt Süd – Scharmbecker Bach;Auslaufbauwerk;RW;Kernstadt;Einleitstelle Scharmbecker Bach;53,2244704;8,7952245;1962;;Scharmbecker Bach;Dezentrale Regenwassereinleitung (fiktiv).
+OHZ-A03;Auslauf Musikerviertel – Scharmbecker Bach;Auslaufbauwerk;RW;Kernstadt;Einleitstelle Scharmbecker Bach;53,2297602;8,8157325;1972;;Scharmbecker Bach;Dezentrale Regenwassereinleitung (fiktiv).
+OHZ-RRB04;RRB Findorffviertel;Regenrückhaltebecken;RW;Kernstadt;nahe Findorffstraße, 27711 Osterholz-Scharmbeck;53,2225000;8,7833193;1985;1900,0;Graben am Findorffviertel (fiktiv);Offenes Erdbecken mit Drosselablauf (fiktiv).
+OHZ-A04;Auslauf Findorffviertel – Graben am Findorffviertel (fiktiv);Auslaufbauwerk;RW;Kernstadt;Einleitstelle Graben am Findorffviertel (fiktiv);53,2225000;8,7817589;1975;;Graben am Findorffviertel (fiktiv);Dezentrale Regenwassereinleitung (fiktiv).
+OHZ-RRB05;RRB Gewerbegebiet Ost;Regenrückhaltebecken;RW;Kernstadt;nahe Teufelsmoorstraße, 27711 Osterholz-Scharmbeck;53,2299364;8,8156467;1995;1760,0;Scharmbecker Bach;Offenes Erdbecken mit Drosselablauf (fiktiv).
+OHZ-A05;Auslauf Gewerbegebiet Ost – Scharmbecker Bach;Auslaufbauwerk;RW;Kernstadt;Einleitstelle Scharmbecker Bach;53,2292611;8,8160573;1985;;Scharmbecker Bach;Dezentrale Regenwassereinleitung (fiktiv).
+PEN-PW01;PW Pennigbüttel;Pumpwerk;SW;Pennigbüttel;Pennigbütteler Straße, 27711 Osterholz-Scharmbeck;53,2410000;8,8270000;1977;17,7;;Fördert über Druckleitung in Schacht OHZ-S0176.
+PEN-RRB01;RRB Pennigbüttel;Regenrückhaltebecken;RW;Pennigbüttel;nahe Pennigbütteler Straße, 27711 Osterholz-Scharmbeck;53,2396831;8,8261991;1985;3520,0;Scharmbecker Bach;Offenes Erdbecken mit Drosselablauf (fiktiv).
+PEN-A01;Auslauf Pennigbüttel – Scharmbecker Bach;Auslaufbauwerk;RW;Pennigbüttel;Einleitstelle Scharmbecker Bach;53,2388390;8,8256857;1975;;Scharmbecker Bach;Dezentrale Regenwassereinleitung (fiktiv).
+BUS-PW01;PW Buschhausen;Pumpwerk;SW;Buschhausen;Buschhauser Straße, 27711 Osterholz-Scharmbeck;53,2405000;8,7735000;1984;18,4;;Fördert über Druckleitung in Schacht OHZ-S0250.
+BUS-A01;Auslauf Buschhausen – Graben zur Hamme (fiktiv);Auslaufbauwerk;RW;Buschhausen;Einleitstelle Graben zur Hamme (fiktiv);53,2400227;8,7689766;1980;;Graben zur Hamme (fiktiv);Dezentrale Regenwassereinleitung (fiktiv).
+SST-PW01;PW Scharmbeckstotel;Pumpwerk;SW;Scharmbeckstotel;Scharmbeckstoteler Straße, 27711 Osterholz-Scharmbeck;53,2480000;8,8030000;1990;14,9;;Fördert über Druckleitung in Schacht OHZ-S0207.
+SST-A01;Auslauf Scharmbeckstotel – Scharmbecker Bach (Oberlauf);Auslaufbauwerk;RW;Scharmbeckstotel;Einleitstelle Scharmbecker Bach (Oberlauf);53,2457003;8,8030000;1985;;Scharmbecker Bach (Oberlauf);Dezentrale Regenwassereinleitung (fiktiv).
+SAN-PW01;PW Sandhausen;Pumpwerk;SW;Sandhausen;Sandhauser Straße, 27711 Osterholz-Scharmbeck;53,2010000;8,8180000;1981;23,5;;Fördert über Druckleitung in Schacht OHZ-S0137.
+SAN-RRB01;RRB Sandhausen;Regenrückhaltebecken;RW;Sandhausen;nahe Sandhauser Straße, 27711 Osterholz-Scharmbeck;53,1996199;8,8175938;1986;1080,0;Sandhauser Graben (fiktiv);Offenes Erdbecken mit Drosselablauf (fiktiv).
+SAN-A01;Auslauf Sandhausen – Sandhauser Graben (fiktiv);Auslaufbauwerk;RW;Sandhausen;Einleitstelle Sandhauser Graben (fiktiv);53,1987353;8,8173333;1976;;Sandhauser Graben (fiktiv);Dezentrale Regenwassereinleitung (fiktiv).
+TEU-PW01;PW Teufelsmoor;Pumpwerk;SW;Teufelsmoor;Teufelsmoorer Straße, 27711 Osterholz-Scharmbeck;53,2520000;8,8800000;1990;9,0;;Fördert über Druckleitung in Schacht PEN-S0040.
+TEU-A01;Auslauf Teufelsmoor – Hamme;Auslaufbauwerk;RW;Teufelsmoor;Einleitstelle Hamme;53,2513671;8,8770935;1985;;Hamme;Dezentrale Regenwassereinleitung (fiktiv).
+HEI-PW01;PW Heilshorn;Pumpwerk;SW;Heilshorn;Heilshorner Straße, 27711 Osterholz-Scharmbeck;53,2590000;8,7200000;1981;14,6;;Fördert über Druckleitung in Schacht BUS-S0032.
+HEI-RRB01;RRB Heilshorn;Regenrückhaltebecken;RW;Heilshorn;nahe Heilshorner Straße, 27711 Osterholz-Scharmbeck;53,2579265;8,7184942;1988;2620,0;Heilshorner Graben (fiktiv);Offenes Erdbecken mit Drosselablauf (fiktiv).
+HEI-A01;Auslauf Heilshorn – Heilshorner Graben (fiktiv);Auslaufbauwerk;RW;Heilshorn;Einleitstelle Heilshorner Graben (fiktiv);53,2572383;8,7175289;1978;;Heilshorner Graben (fiktiv);Dezentrale Regenwassereinleitung (fiktiv).
+GAR-PW01;PW Garlstedt;Pumpwerk;SW;Garlstedt;Garlstedter Straße, 27711 Osterholz-Scharmbeck;53,2745000;8,6990000;1992;22,9;;Fördert über Druckleitung in Schacht HEI-S0035.
+GAR-A01;Auslauf Garlstedt – Graben Garlstedter Heide (fiktiv);Auslaufbauwerk;RW;Garlstedt;Einleitstelle Graben Garlstedter Heide (fiktiv);53,2733502;8,6956695;1990;;Graben Garlstedter Heide (fiktiv);Dezentrale Regenwassereinleitung (fiktiv).
+OHL-PW01;PW Ohlenstedt;Pumpwerk;SW;Ohlenstedt;Ohlenstedter Straße, 27711 Osterholz-Scharmbeck;53,2860000;8,7330000;1987;10,5;;Fördert über Druckleitung in Schacht GAR-S0037.
+OHL-A01;Auslauf Ohlenstedt – Ohlenstedter Graben (fiktiv);Auslaufbauwerk;RW;Ohlenstedt;Einleitstelle Ohlenstedter Graben (fiktiv);53,2840078;8,7317871;1982;;Ohlenstedter Graben (fiktiv);Dezentrale Regenwassereinleitung (fiktiv).

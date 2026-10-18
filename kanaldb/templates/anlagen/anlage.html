@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import "_makros.html" as m with context %}
+{% block titel %}{{ a.name or a.bezeichnung }}{% endblock %}
+{% block kopf %}{{ m.leaflet_kopf() }}{% endblock %}
+{% block inhalt %}
+<div class="seitenkopf">
+  <div><h1>{{ a.name or a.bezeichnung }} {{ m.art(a.kanalart) }}</h1><p class="leise">{{ a.anlagentyp }} · {{ a.bezeichnung }} · {{ a.adresse or a.ortsteil or '' }}</p></div>
+  <div class="aktionen">
+    {% if current_user.darf_bearbeiten %}<a class="knopf" href="{{ url_for('betrieb.stoerung_bearbeiten', ziel_typ='anlage', ziel_id=a.id) }}">+ Störung</a>{% endif %}
+    {% if a.lat %}<a class="knopf zweit" href="{{ url_for('start.karte', lat=a.lat, lon=a.lon, z=18) }}">In Karte</a>
+      <a class="knopf zweit" href="https://www.google.com/maps/dir/?api=1&destination={{ a.lat }},{{ a.lon }}" target="_blank" rel="noopener">Navigation</a>{% endif %}
+    {% if current_user.darf_bearbeiten %}<a class="knopf zweit" href="{{ url_for('anlagen.anlage_bearbeiten', id=a.id) }}">Bearbeiten</a>{% endif %}
+    {% if current_user.ist_admin %}{{ m.loesch_knopf(url_for('anlagen.anlage_loeschen', id=a.id), frage='Anlage mit allen Objekten löschen?') }}{% endif %}
+  </div>
+</div>
+<div class="raster-2">
+  <div class="stapel">
+    <section class="karte-box">
+      <div class="seitenkopf"><h2>Anlagenobjekte</h2>
+        {% if current_user.darf_bearbeiten %}<a class="knopf klein zweit" href="{{ url_for('anlagen.objekt_bearbeiten', anlage_id=a.id) }}">+ Objekt</a>{% endif %}</div>
+      {% if a.objekte %}<div class="tabelle-wrap"><table>
+        <tr><th>Objekt</th><th>Typ</th><th class="verbergen-mobil">Hersteller / Typ</th><th class="zahl verbergen-mobil">Leistung</th><th class="zahl verbergen-mobil">Betriebsstd.</th><th>Status</th></tr>
+        {% for o in a.objekte %}<tr><td><a href="{{ url_for('anlagen.objekt', id=o.id) }}">{{ o.bezeichnung }}</a></td><td>{{ o.objekttyp }}</td>
+          <td class="verbergen-mobil">{{ o.hersteller or '' }} {{ o.typ or '' }}</td><td class="zahl verbergen-mobil">{% if o.leistung_kw %}{{ o.leistung_kw|de(1) }} kW{% endif %}</td>
+          <td class="zahl verbergen-mobil">{{ o.betriebsstunden|de(0) if o.betriebsstunden else '' }}</td><td>{{ o.status }}</td></tr>{% endfor %}
+      </table></div>{% else %}<p class="leise">Keine Objekte erfasst.</p>{% endif %}
+    </section>
+    {{ m.betrieb_bloecke(ziel_typ, ziel_id, wartungsplaene, massnahmen, stoerungen, dokumente, schaeden_alle) }}
+  </div>
+  <div class="stapel">
+    <section class="karte-box"><h2>Stammdaten</h2><dl class="daten">
+      <dt>Typ</dt><dd>{{ a.anlagentyp }}</dd><dt>Kanalart</dt><dd>{{ KANALARTEN.get(a.kanalart, '–') }}</dd>
+      <dt>Ortsteil</dt><dd>{{ a.ortsteil or '–' }}</dd><dt>Adresse</dt><dd>{{ a.adresse or '–' }}</dd>
+      <dt>Baujahr</dt><dd>{{ a.baujahr or '–' }}</dd><dt>Volumen</dt><dd>{{ a.volumen_m3|de(0) }} m³</dd>
+      <dt>Vorfluter</dt><dd>{{ a.vorfluter or '–' }}</dd><dt>Erlaubnis</dt><dd>{{ a.einleiterlaubnis or '–' }}</dd>
+      <dt>Status</dt><dd>{{ a.status or '–' }}</dd>
+    </dl>{% if a.bemerkung %}<p>{{ a.bemerkung }}</p>{% endif %}
+    {% if knoten %}<p class="klein">Bauwerk im Kanalnetz: {% for k in knoten %}<a href="{{ url_for('kanal.knoten', id=k.id) }}">{{ k.bezeichnung }}</a> {% endfor %}</p>{% endif %}</section>
+    {% if a.lat %}<section class="karte-box">{{ m.minikarte('minikarte', [[a.lat, a.lon, a.name or a.bezeichnung]]) }}</section>{% endif %}
+  </div>
+</div>
+{% endblock %}
