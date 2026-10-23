@@ -164,5 +164,63 @@ def erstellen(datum, aussage, hintergrund=None):
     return out
 
 
+ROT = (214, 64, 52)
+GRAU = (196, 201, 206)
+LAND = (236, 239, 233)
+
+
+def mit_rahmen(motiv, datum, aussage, unterzeile=""):
+    """Legt den einheitlichen Rahmen über eine individuell gezeichnete Illustration.
+
+    motiv: Bild in 1200 x 675. Die linken ~420 px werden vom Textfeld überdeckt,
+    die eigentliche Szene gehört also nach rechts. Speichert bilder/<datum>.png.
+    """
+    img = motiv.convert("RGBA").resize((W, H))
+    panel = Image.new("RGBA", (W, H))
+    pd = ImageDraw.Draw(panel)
+    for x in range(560):
+        a = 245 if x < 380 else int(245 * (560 - x) / 180)
+        pd.line((x, 0, x, H), fill=DUNKEL + (a,))
+    img = Image.alpha_composite(img, panel)
+    d = ImageDraw.Draw(img)
+
+    ft = font(FONT_BOLD, 22)
+    tw = d.textlength(TITEL.upper(), font=ft)
+    d.rounded_rectangle((44, 40, 44 + tw + 36, 84), radius=22, fill="white")
+    d.text((62, 62), TITEL.upper(), font=ft, fill=DUNKEL, anchor="lm")
+
+    for size in (58, 54, 48, 42, 38, 34):
+        fb = font(FONT_BOLD, size)
+        lines = wrap(d, aussage, fb, 450)
+        if len(lines) <= 4:
+            break
+    y = 128
+    for line in lines:
+        d.text((46, y), line, font=fb, fill="white")
+        y += int(size * 1.2)
+    fu = font(FONT_REGULAR, 21)
+    for line in wrap(d, unterzeile, fu, 440) if unterzeile else []:
+        y += 6
+        d.text((48, y + 8), line, font=fu, fill=(215, 225, 235))
+        y += 22
+
+    logo = logo_transparent()
+    logo.thumbnail((170, 96), Image.LANCZOS)
+    card = (44, H - logo.height - 44 - 24, 44 + logo.width + 32, H - 44)
+    d.rounded_rectangle(card, radius=14, fill="white")
+    img.alpha_composite(logo, (card[0] + 16, card[1] + 12))
+
+    fh = font(FONT_REGULAR, 15)
+    hw = d.textlength("KI-generiert", font=fh)
+    d.rounded_rectangle((W - hw - 64, 42, W - 44, 70), radius=14, fill=(0, 0, 0, 150))
+    d.text((W - 54, 56), "KI-generiert", font=fh, fill=(235, 235, 235), anchor="rm")
+
+    out = HIER / "bilder" / f"{datum}.png"
+    out.parent.mkdir(exist_ok=True)
+    img.convert("RGB").save(out, optimize=True)
+    print(f"Bild gespeichert: {out.relative_to(HIER.parent)}")
+    return out
+
+
 if __name__ == "__main__":
     erstellen(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
