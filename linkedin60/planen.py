@@ -88,6 +88,8 @@ def main():
         "zielgruppe": pick_least_recent(ZIELGRUPPEN, history, "zielgruppe", avoid_last=2),
         "laenge": pick_least_recent(LAENGEN, history, "laenge", avoid_last=1),
     }
+    if auswahl["format"] == "Kurz und trocken":  # das Format bestimmt die Länge selbst
+        auswahl["laenge"] = "kurz"
     AUSWAHL_FILE.write_text(json.dumps(auswahl, ensure_ascii=False), encoding="utf-8")
     print(build_brief(today, history, auswahl["format"], auswahl["zielgruppe"], auswahl["laenge"]))
 
