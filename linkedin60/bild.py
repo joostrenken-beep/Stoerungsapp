@@ -192,7 +192,7 @@ def mit_rahmen(motiv, datum, aussage, unterzeile=""):
     for size in (58, 54, 48, 42, 38, 34):
         fb = font(FONT_BOLD, size)
         lines = wrap(d, aussage, fb, 450)
-        if len(lines) <= 4:
+        if len(lines) <= 4 and max(d.textlength(l, font=fb) for l in lines) <= 470:
             break
     y = 128
     for line in lines:
