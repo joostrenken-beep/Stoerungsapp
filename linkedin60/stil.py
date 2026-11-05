@@ -101,3 +101,20 @@ KI_VERBOTE = """\
 - Konkret statt allgemein: Orte, Zahlen, Namen von Programmen oder Gesetzen, wenn sie in den Quellen stehen.
 - Keine erfundenen Zahlen oder Zitate. Nur was in den Quellen steht.
 """
+
+# Bildstile: wechseln von Beitrag zu Beitrag, damit die Bilder sich deutlich unterscheiden.
+# Jeder Stil bringt seine eigene Farbwelt mit; die Markenfarben gelten nur für den Rahmen.
+BILDSTILE = {
+    "Flache Vektorillustration": "Klare Flächen ohne Verläufe, wenige Farben, freundlich und plakativ.",
+    "Detaillierte Illustration": "Verläufe, weiche Schatten, Texturen, viele kleine Details, gern mit Schnitt durch Boden oder Gebäude. In doppelter Auflösung zeichnen und verkleinern.",
+    "Technische Blaupause": "Weiße Linien auf blauem Planpapier, Raster, Schraffuren, Hinweislinien mit Beschriftung, Schriftfeld, Monospace-Schrift, ein Signalfarben-Akzent.",
+    "Comic / Pop-Art": "Dicke schwarze Konturen, Rasterpunkte, Sprechblasen, kräftige Grundfarben, Strahlen im Hintergrund.",
+    "Isometrische 3D-Ansicht": "Szene in Isometrie (30-Grad-Achsen) aus Quadern und Flächen mit drei Helligkeitsstufen je Körper, wie eine kleine Modellstadt.",
+    "Holzschnitt / Linoldruck": "Zwei oder drei Farben auf cremefarbenem Papier, grobe Schraffuren und Kerben, unregelmäßige Kanten, Druckstruktur.",
+    "Retro-Plakat": "Stil der 50er/60er Jahre: begrenzte, leicht verblasste Palette, große einfache Formen, Sonnenstrahlen oder Bögen, Körnung.",
+    "Scherenschnitt / Papiercollage": "Mehrere Papierebenen hintereinander mit weichem Schattenwurf, ausgeschnittene Silhouetten, Papierstruktur.",
+    "Pixel-Art": "Grobe Pixel (in kleiner Auflösung zeichnen, ohne Glättung hochskalieren), begrenzte Palette, Spielgrafik-Anmutung.",
+    "Bleistiftskizze": "Handzeichnung auf kariertem oder liniertem Notizpapier, Schraffuren, leicht zittrige Linien, Notizen und Pfeile wie von Hand.",
+    "Nacht und Neon": "Dunkle Szene, wenige leuchtende Akzente mit Glow, Spiegelungen auf nassem Boden, starker Kontrast.",
+    "Minimalistisch": "Ein einziges starkes Symbol oder Objekt, sehr viel ruhige Fläche, höchstens zwei Farben.",
+}

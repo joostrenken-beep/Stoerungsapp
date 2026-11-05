@@ -5,7 +5,9 @@
     "zielgruppe": "Kommunalpolitik und Landespolitik",
     "laenge": "kurz",
     "thema": "Sturzflutkonzept und neues Gewerbegebiet in derselben Ratssitzung",
-    "erste_zeile": "2035. Der Gemeinderat tagt mal wieder zur Sturzflut am Bach."
+    "erste_zeile": "2035. Der Gemeinderat tagt mal wieder zur Sturzflut am Bach.",
+    "bildstil": "Flache Vektorillustration",
+    "layout": "links"
   },
   {
     "datum": "2026-10-20",
@@ -13,7 +15,9 @@
     "zielgruppe": "Geschäftsführung Stadtentwässerung",
     "laenge": "mittel",
     "thema": "Gefördertes Frühwarnsystem, offene Betriebskosten, Investitionsstau im Kanalnetz",
-    "erste_zeile": "Rechnen wir mal kurz."
+    "erste_zeile": "Rechnen wir mal kurz.",
+    "bildstil": "Flache Vektorillustration",
+    "layout": "links"
   },
   {
     "datum": "2026-10-22",
@@ -21,7 +25,9 @@
     "zielgruppe": "Bürgerinnen und Bürger",
     "laenge": "kurz",
     "thema": "Eckpunkte Elementarschutz als Standard: Versicherung ersetzt keine Vorsorge",
-    "erste_zeile": "Die neue Elementarversicherung macht deinen Keller kein bisschen trockener."
+    "erste_zeile": "Die neue Elementarversicherung macht deinen Keller kein bisschen trockener.",
+    "bildstil": "Flache Vektorillustration",
+    "layout": "links"
   },
   {
     "datum": "2026-10-23",
@@ -29,7 +35,9 @@
     "zielgruppe": "Alle drei gegeneinander",
     "laenge": "mittel",
     "thema": "Hinweiskarte Starkregengefahren Hessen: Alle profitieren vom Nichtwissen",
-    "erste_zeile": "Die meisten werden diese Karte nie öffnen. Und das ist vielen ganz recht."
+    "erste_zeile": "Die meisten werden diese Karte nie öffnen. Und das ist vielen ganz recht.",
+    "bildstil": "Flache Vektorillustration",
+    "layout": "links"
   },
   {
     "datum": "2026-10-27",
@@ -37,7 +45,9 @@
     "zielgruppe": "Kommunalpolitik und Landespolitik",
     "laenge": "kurz",
     "thema": "Klimaanpassung bleibt freiwillige Aufgabe: Konzepte ohne Haushaltszeile",
-    "erste_zeile": "Infoabend Klimaanpassung. Schulaula, Beamer, Stuhlreihen. Vorne das Konzept. Aus der letzten Reihe die Frage: Und wer bezahlt das?"
+    "erste_zeile": "Infoabend Klimaanpassung. Schulaula, Beamer, Stuhlreihen. Vorne das Konzept. Aus der letzten Reihe die Frage: Und wer bezahlt das?",
+    "bildstil": "Flache Vektorillustration",
+    "layout": "links"
   },
   {
     "datum": "2026-10-29",
@@ -45,7 +55,9 @@
     "zielgruppe": "Bürgerinnen und Bürger",
     "laenge": "kurz",
     "thema": "Herbstlaub in Dachrinne und Hofablauf: Eigenvorsorge vor dem nächsten Starkregen",
-    "erste_zeile": "Herbst. Das Laub liegt in deiner Dachrinne und auf dem Ablauf im Hof."
+    "erste_zeile": "Herbst. Das Laub liegt in deiner Dachrinne und auf dem Ablauf im Hof.",
+    "bildstil": "Flache Vektorillustration",
+    "layout": "links"
   },
   {
     "datum": "2026-10-30",
@@ -53,7 +65,9 @@
     "zielgruppe": "Alle drei gegeneinander",
     "laenge": "lang",
     "thema": "Gesplittete Regenwassergebühr kommt im Vogtland erst 2027",
-    "erste_zeile": "An alle, die beim Regenwasser gern auf die anderen zeigen."
+    "erste_zeile": "An alle, die beim Regenwasser gern auf die anderen zeigen.",
+    "bildstil": "Detaillierte Illustration",
+    "layout": "links"
   },
   {
     "datum": "2026-11-03",
@@ -61,7 +75,9 @@
     "zielgruppe": "Geschäftsführung Stadtentwässerung",
     "laenge": "mittel",
     "thema": "Abwassergebühren steigen, Sanierungsstau bleibt: Gebühr ohne Entschuldigung",
-    "erste_zeile": "4,8"
+    "erste_zeile": "4,8",
+    "bildstil": "Technische Blaupause",
+    "layout": "links"
   },
   {
     "datum": "2026-11-05",
@@ -69,6 +85,8 @@
     "zielgruppe": "Bürgerinnen und Bürger",
     "laenge": "kurz",
     "thema": "Selbstkritik: Fachsprache der Starkregenvorsorge erreicht Bürger nicht",
-    "erste_zeile": "Ich muss mal was zugeben."
+    "erste_zeile": "Ich muss mal was zugeben.",
+    "bildstil": "Comic / Pop-Art",
+    "layout": "links"
   }
 ]

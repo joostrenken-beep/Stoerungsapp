@@ -9,7 +9,9 @@ Es fallen keine zusätzlichen Kosten an: Das Ganze läuft als geplante Aufgabe i
 1. `planen.py` wählt Format, Zielgruppe und Länge, die zuletzt nicht dran waren, und gibt den Schreibauftrag aus.
 2. Claude recherchiert per Websuche die wichtigste Nachricht der Woche und die laufenden Debatten und schreibt den Beitrag.
 3. `speichern.py` bereinigt den Text (keine Gedankenstriche, kein Markdown), setzt die Überschrift **„60 Sekunden Wasserwirtschaft“** davor, legt den Entwurf unter `entwuerfe/<datum>.md` ab und trägt ihn in `history.json` ein.
-4. Für jeden Beitrag zeichnet Claude ein **eigenes Bild** zum Thema (z. B. eine Gefahrenkarte, einen Kellerschnitt, ein überlaufendes Rohr): ein kleines Python-Skript unter `motive/<datum>.py`, das die Szene zeichnet und mit `bild.mit_rahmen()` den einheitlichen Rahmen darüberlegt. Der Rahmen enthält Reihentitel, Kernaussage, das Logo von Stark! Regenberatung und klein „KI-generiert“. Ergebnis: `bilder/<datum>.png` (1200 × 675). Klappt das einmal nicht, bleibt das einfache Markenbild aus `bild.erstellen()` als Ersatz. Das Logo liegt in `assets/logo_original.png`.
+4. Für jeden Beitrag zeichnet Claude ein **eigenes Bild** zum Thema: ein kleines Python-Skript unter `motive/<datum>.py`, das die Szene zeichnet und mit `bild.mit_rahmen()` den Rahmen darüberlegt (Reihentitel, Kernaussage, Logo von Stark! Regenberatung, klein „KI-generiert“). Ergebnis: `bilder/<datum>.png` (1200 × 675). Klappt das einmal nicht, bleibt das einfache Markenbild aus `bild.erstellen()` als Ersatz. Das Logo liegt in `assets/logo_original.png`.
+   - **Bildstil** wechselt jedes Mal (`BILDSTILE` in `stil.py`, 12 Stile, z. B. Blaupause, Comic, Isometrie, Holzschnitt, Retro-Plakat, Scherenschnitt, Pixel-Art, Bleistiftskizze, Nacht und Neon, Minimalistisch). Ein Stil kommt frühestens nach 8 Beiträgen wieder.
+   - **Layout** des Rahmens wechselt ebenfalls (`LAYOUTS` in `bild.py`): Textfeld links, Textband unten oder weiße Textkarte.
 5. Claude zeigt dir Beitrag und Bild im Chat in einem Kasten zum Kopieren, mit zwei alternativen Einstiegszeilen und den Quellen.
 
 ## Abwechslung und Stil

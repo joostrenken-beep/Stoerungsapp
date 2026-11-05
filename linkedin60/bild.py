@@ -169,52 +169,114 @@ GRAU = (196, 201, 206)
 LAND = (236, 239, 233)
 
 
-def mit_rahmen(motiv, datum, aussage, unterzeile=""):
-    """Legt den einheitlichen Rahmen über eine individuell gezeichnete Illustration.
+LAYOUTS = {
+    "links": "Textfeld links (ca. 420 px breit). Die Szene gehört nach rechts.",
+    "unten": "Textband unten (ca. 200 px hoch). Die Szene nutzt die ganze Breite oberhalb.",
+    "karte": "Weiße Textkarte oben links (ca. 480 x 300 px), sonst randlos. Die Szene gehört nach rechts und unten.",
+}
 
-    motiv: Bild in 1200 x 675. Die linken ~420 px werden vom Textfeld überdeckt,
-    die eigentliche Szene gehört also nach rechts. Speichert bilder/<datum>.png.
-    """
-    img = motiv.convert("RGBA").resize((W, H))
-    panel = Image.new("RGBA", (W, H))
-    pd = ImageDraw.Draw(panel)
-    for x in range(560):
-        a = 245 if x < 380 else int(245 * (560 - x) / 180)
-        pd.line((x, 0, x, H), fill=DUNKEL + (a,))
-    img = Image.alpha_composite(img, panel)
-    d = ImageDraw.Draw(img)
 
-    ft = font(FONT_BOLD, 22)
-    tw = d.textlength(TITEL.upper(), font=ft)
-    d.rounded_rectangle((44, 40, 44 + tw + 36, 84), radius=22, fill="white")
-    d.text((62, 62), TITEL.upper(), font=ft, fill=DUNKEL, anchor="lm")
-
-    for size in (58, 54, 48, 42, 38, 34):
+def _textblock(d, aussage, max_w, sizes, max_lines):
+    for size in sizes:
         fb = font(FONT_BOLD, size)
-        lines = wrap(d, aussage, fb, 450)
-        if len(lines) <= 4 and max(d.textlength(l, font=fb) for l in lines) <= 470:
-            break
-    y = 128
-    for line in lines:
-        d.text((46, y), line, font=fb, fill="white")
-        y += int(size * 1.2)
-    fu = font(FONT_REGULAR, 21)
-    for line in wrap(d, unterzeile, fu, 440) if unterzeile else []:
-        y += 6
-        d.text((48, y + 8), line, font=fu, fill=(215, 225, 235))
-        y += 22
+        lines = wrap(d, aussage, fb, max_w)
+        if len(lines) <= max_lines and max(d.textlength(l, font=fb) for l in lines) <= max_w + 20:
+            return fb, size, lines
+    return fb, size, lines
 
+
+def _logo_karte(img, d, x, y_unten, max_size=(170, 96)):
     logo = logo_transparent()
-    logo.thumbnail((170, 96), Image.LANCZOS)
-    card = (44, H - logo.height - 44 - 24, 44 + logo.width + 32, H - 44)
+    logo.thumbnail(max_size, Image.LANCZOS)
+    card = (x, y_unten - logo.height - 24, x + logo.width + 32, y_unten)
     d.rounded_rectangle(card, radius=14, fill="white")
     img.alpha_composite(logo, (card[0] + 16, card[1] + 12))
 
+
+def _titel(d, x, y, hell=True):
+    ft = font(FONT_BOLD, 22)
+    tw = d.textlength(TITEL.upper(), font=ft)
+    d.rounded_rectangle((x, y, x + tw + 36, y + 44), radius=22, fill="white" if hell else DUNKEL)
+    d.text((x + 18, y + 22), TITEL.upper(), font=ft, fill=DUNKEL if hell else "white", anchor="lm")
+
+
+def _ki_hinweis(d):
     fh = font(FONT_REGULAR, 15)
     hw = d.textlength("KI-generiert", font=fh)
     d.rounded_rectangle((W - hw - 64, 42, W - 44, 70), radius=14, fill=(0, 0, 0, 150))
     d.text((W - 54, 56), "KI-generiert", font=fh, fill=(235, 235, 235), anchor="rm")
 
+
+def mit_rahmen(motiv, datum, aussage, unterzeile="", layout="links"):
+    """Legt den Rahmen über eine individuell gezeichnete Szene und speichert bilder/<datum>.png.
+
+    Immer enthalten: Reihentitel, Kernaussage, Logo, Hinweis "KI-generiert".
+    layout: siehe LAYOUTS. Die Szene muss zum Layout passen (freie Fläche für den Text).
+    """
+    img = motiv.convert("RGBA").resize((W, H))
+    panel = Image.new("RGBA", (W, H))
+    pd = ImageDraw.Draw(panel)
+
+    if layout == "unten":
+        band = 200
+        for y in range(H - band - 80, H):
+            a = 240 if y >= H - band else int(240 * (y - (H - band - 80)) / 80)
+            pd.line((0, y, W, y), fill=DUNKEL + (a,))
+        img = Image.alpha_composite(img, panel)
+        d = ImageDraw.Draw(img)
+        _titel(d, 44, 40)
+        fb, size, lines = _textblock(d, aussage, 820, (50, 46, 42, 38, 34), 2)
+        y = H - band + 18
+        for line in lines:
+            d.text((46, y), line, font=fb, fill="white")
+            y += int(size * 1.18)
+        if unterzeile:
+            d.text((48, y + 6), unterzeile, font=font(FONT_REGULAR, 20), fill=(215, 225, 235))
+        _logo_karte(img, d, W - 44 - 202, H - 36)
+
+    elif layout == "karte":
+        kx0, ky0, kx1 = 40, 40, 520
+        fb, size, lines = _textblock(d := ImageDraw.Draw(img), aussage, kx1 - kx0 - 56, (48, 44, 40, 36, 32), 4)
+        fu = font(FONT_REGULAR, 19)
+        ulines = wrap(d, unterzeile, fu, kx1 - kx0 - 56) if unterzeile else []
+        ky1 = ky0 + 86 + len(lines) * int(size * 1.15) + len(ulines) * 26 + 24
+        schatten = Image.new("RGBA", (W, H))
+        ImageDraw.Draw(schatten).rounded_rectangle((kx0 + 6, ky0 + 10, kx1 + 6, ky1 + 10), radius=22, fill=(0, 0, 0, 90))
+        img = Image.alpha_composite(img, schatten.filter(ImageFilter.GaussianBlur(10)))
+        d = ImageDraw.Draw(img)
+        d.rounded_rectangle((kx0, ky0, kx1, ky1), radius=22, fill=(255, 255, 255, 245))
+        d.rectangle((kx0, ky0 + 22, kx0 + 8, ky1 - 22), fill=BLAU)
+        d.text((kx0 + 30, ky0 + 26), TITEL.upper(), font=font(FONT_BOLD, 20), fill=BLAU)
+        y = ky0 + 66
+        for line in lines:
+            d.text((kx0 + 28, y), line, font=fb, fill=DUNKEL)
+            y += int(size * 1.15)
+        for line in ulines:
+            d.text((kx0 + 30, y + 8), line, font=fu, fill=(90, 100, 112))
+            y += 26
+        _logo_karte(img, d, 40, H - 36)
+
+    else:  # "links"
+        for x in range(560):
+            a = 245 if x < 380 else int(245 * (560 - x) / 180)
+            pd.line((x, 0, x, H), fill=DUNKEL + (a,))
+        img = Image.alpha_composite(img, panel)
+        d = ImageDraw.Draw(img)
+        _titel(d, 44, 40)
+        fb, size, lines = _textblock(d, aussage, 450, (58, 54, 48, 42, 38, 34), 4)
+        y = 128
+        for line in lines:
+            d.text((46, y), line, font=fb, fill="white")
+            y += int(size * 1.2)
+        fu = font(FONT_REGULAR, 21)
+        for line in wrap(d, unterzeile, fu, 440) if unterzeile else []:
+            y += 6
+            d.text((48, y + 8), line, font=fu, fill=(215, 225, 235))
+            y += 22
+        _logo_karte(img, d, 44, H - 44)
+
+    d = ImageDraw.Draw(img)
+    _ki_hinweis(d)
     out = HIER / "bilder" / f"{datum}.png"
     out.parent.mkdir(exist_ok=True)
     img.convert("RGB").save(out, optimize=True)

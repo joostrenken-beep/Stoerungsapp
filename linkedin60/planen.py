@@ -11,7 +11,8 @@ import random
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from stil import FORMATE, KI_VERBOTE, LAENGEN, TITEL, ZIELGRUPPEN
+from bild import LAYOUTS
+from stil import BILDSTILE, FORMATE, KI_VERBOTE, LAENGEN, TITEL, ZIELGRUPPEN
 
 HIER = Path(__file__).parent
 HISTORY_FILE = HIER / "history.json"
@@ -88,10 +89,18 @@ def main():
         "zielgruppe": pick_least_recent(ZIELGRUPPEN, history, "zielgruppe", avoid_last=2),
         "laenge": pick_least_recent(LAENGEN, history, "laenge", avoid_last=1),
     }
+    auswahl["bildstil"] = pick_least_recent(BILDSTILE, history, "bildstil", avoid_last=8)
+    auswahl["layout"] = pick_least_recent(LAYOUTS, history, "layout", avoid_last=1)
     if auswahl["format"] == "Kurz und trocken":  # das Format bestimmt die Länge selbst
         auswahl["laenge"] = "kurz"
     AUSWAHL_FILE.write_text(json.dumps(auswahl, ensure_ascii=False), encoding="utf-8")
     print(build_brief(today, history, auswahl["format"], auswahl["zielgruppe"], auswahl["laenge"]))
+    print(f"""
+BILD (für Schritt 4)
+Bildstil: {auswahl['bildstil']}. {BILDSTILE[auswahl['bildstil']]}
+Layout: {auswahl['layout']}. {LAYOUTS[auswahl['layout']]} Aufruf: mit_rahmen(img, datum, bildtext, unterzeile, layout="{auswahl['layout']}")
+Zuletzt verwendete Stile, nicht nachahmen: {", ".join(h.get("bildstil", "?") for h in history[-4:])}
+""")
 
 
 if __name__ == "__main__":
