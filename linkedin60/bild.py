@@ -230,8 +230,10 @@ def mit_rahmen(motiv, datum, aussage, unterzeile="", layout="links"):
         for line in lines:
             d.text((46, y), line, font=fb, fill="white")
             y += int(size * 1.18)
-        if unterzeile:
-            d.text((48, y + 6), unterzeile, font=font(FONT_REGULAR, 20), fill=(215, 225, 235))
+        fu = font(FONT_REGULAR, 20)
+        for line in (wrap(d, unterzeile, fu, 820)[:2] if unterzeile else []):
+            d.text((48, y + 6), line, font=fu, fill=(215, 225, 235))
+            y += 24
         _logo_karte(img, d, W - 44 - 202, H - 36)
 
     elif layout == "karte":
